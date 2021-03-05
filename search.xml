@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>HTTP/HTTPS</title>
+    <url>/2021/03/05/HTTP-HTTPS/</url>
+    <content><![CDATA[<h2 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h2><p>Web使用一种名为<code>HTTP</code>(HyperText Transfer Protocol, 超文本传输协议)的协议作为规范，完成从客户端到服务器的一系列运作流程。而协议是指规则的约定。可以说，Web是建立在HTTP协议上通信的。</p>
+<p><code>HTTP</code>最初的目的就是为了让研究者共享知识信息，所以它的主要作用就是文档传输，它是一种用于传输文档的协议</p>
+<h3 id="请求方法"><a href="#请求方法" class="headerlink" title="请求方法"></a>请求方法</h3><ul>
+<li><code>GET</code>: 获取资源</li>
+<li><code>HEAD</code>: 获取资源的元信息</li>
+<li><code>POST</code>: 提交/上传 数据</li>
+<li><code>PUT</code>: 修改数据</li>
+<li><code>DELETE</code>: 删除资源（几乎用不到）</li>
+<li><code>CONNECT</code>: 建立连接渠道，用于代理服务器</li>
+<li><code>OPTIONS</code>: 列出可对资源实施请求的方法，用来跨域请求</li>
+<li><code>TRACE</code>: 追踪请求-响应的传输路径</li>
+</ul>
+<h3 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h3><ul>
+<li>优点<ul>
+<li><code>灵活可扩展</code>：主要体现在两个方面。一个是语义上的自由，只规定了基本格式，比如空格分隔单词，换行分割字段，其他的各个部分都还没有严格的语法限制。另一个就是传输形式的多样性，不仅仅是可以传输文本，还可以传输图片、视频等任意数据，非常方便</li>
+<li><code>可靠传输</code>：HTTP基于TCP/IP，因此把这一特性继承了下来。这属于TCP的特性</li>
+<li><code>请求-应答</code>：也就是一发一收、有来有回，当然这个请求方和应答方不单单指客户端和服务器之间，如果某台服务器作为代理来连接后端的服务器，那么这台服务器也会扮演请求方的角色</li>
+<li><code>无状态</code>：这里的状态指的是通信过程中上下文信息，而每次HTTP请求都是独立、无关的，默认不需要保留状态信息</li>
+</ul>
+</li>
+<li>缺点<ul>
+<li><code>无状态</code>： 在需要长连接的场景中，需要保存大量的上下文信息，以免传输大量重复的信息，那么这个时候无状态就成了HTTP的缺点了</li>
+<li><code>明文传输</code>： 协议里的报文（主要指的是头部）不使用二进制数据，而是文本形式</li>
+<li><code>队头阻塞问题</code>： 当HTTP开始长连接的时候，共用一个TCP连接，同一时刻只能处理一个请求，那么当前请求耗时过长的情况下，其它的请求只能处于阻塞状态</li>
+</ul>
+</li>
+</ul>
+<h3 id="GET和POST的区别"><a href="#GET和POST的区别" class="headerlink" title="GET和POST的区别"></a>GET和POST的区别</h3><p><code>GET</code>和<code>POST</code>方法没有实质区别，只是报文格式不同<br><code>GET</code>和<code>POST</code>只是<code>HTTP</code>协议中两种请求方式，而<code>HTTP</code>协议是基于<code>TCP/IP</code>的应用层协议<br>无论是<code>GET</code>还是<code>POST</code>，用的都是同一个传输层协议，所以在传输上是没有区别的</p>
+<ul>
+<li><code>GET</code>获取资源；<code>POST</code>提交/上传 数据</li>
+<li><code>GET</code>请求长度在浏览器中有显示，而<code>POST</code>并没有</li>
+<li><code>GET</code>请求会被浏览器主动保留下来（历史记录）, 而<code>POST</code>默认不会</li>
+</ul>
+<blockquote>
+<p>【误区】GET请求传参长度有限制</p>
+</blockquote>
+<ul>
+<li><p>我们经常说GET请求参数的大小存在限制，而POST请求的参数大小是无限制的。其实这是有问题的。</p>
+</li>
+<li><p>实际上<code>HTTP</code>协议从来没规定<code>GET/POST</code>的请求长度限制是多少</p>
+</li>
+<li><p>对<code>GET</code>请求参数的限制来源于浏览器或者<code>Web</code>服务器，是它们限制了这个长度</p>
+</li>
+<li><p>不同的浏览器和<code>Web</code>服务器，限制的最大长度不一样</p>
+</li>
+</ul>
+<blockquote>
+<p>【误区】POST方法比GET方法安全</p>
+</blockquote>
+<ul>
+<li><p><code>POST</code>比<code>GET</code>安全，是因为数据在地址栏URL看不见</p>
+</li>
+<li><p>从传输的角度来说<code>HTTP</code>在网络上的明文传输，可以通过抓包工具完整获取的</p>
+</li>
+<li><p>如果想要安全，可以使用<code>HTTPS</code></p>
+</li>
+</ul>
+<h3 id="keep-alive"><a href="#keep-alive" class="headerlink" title="keep-alive"></a>keep-alive</h3><p><code>HTTP</code>的<code>keep-alive</code>也称为<code>HTTP</code>的长连接<br>它通过重用一个<code>TCP</code>连接来发送/接收多个<code>HTTP</code>请求，来减少创建/关闭多个TCP连接的开销</p>
+<p>在<code>HTTP/1.0</code>协议中，如果请求头中包含</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Connection: keep-alive</span><br></pre></td></tr></table></figure>
+<p>则代表开启了<code>keep-alive</code>，而服务端的返回保文头中，也会包含相同的内容</p>
+<p>在<code>HTTP/1.1</code>协议中，默认开启<code>keep-alive</code>，除非显式地关闭它：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Connection: close</span><br></pre></td></tr></table></figure>
+
+<p>除此之外还可以设置断开的时间</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Keep-Alive: timeout&#x3D;5, max&#x3D;100</span><br></pre></td></tr></table></figure>
+<p>这个就表示<code>TCP</code>通道可以保持<code>5s</code>，<code>max=100</code>表示这个长连接最多接收<code>100</code>次请求就断开</p>
+<h3 id="HTTP和TCP的区别"><a href="#HTTP和TCP的区别" class="headerlink" title="HTTP和TCP的区别"></a>HTTP和TCP的区别</h3><p>HTTP是应用层协议，定义的是传输数据内容的规范；而TCP是底层通讯协议，定义的是数据传输和连接方式的规范。</p>
+<p>HTTP协议中的数据是利用TCP协议传输的，所以支持HTTP的也一定支持TCP</p>
+<h2 id="HTTP状态码"><a href="#HTTP状态码" class="headerlink" title="HTTP状态码"></a>HTTP状态码</h2><ul>
+<li>HTTP状态码位三位数，被归为五类<ul>
+<li><code>1XX</code>：表示目前是协议处理的中间状态，还需要后续操作</li>
+<li><code>2XX</code>：表示成功状态</li>
+<li><code>3XX</code>：重定向状态，资源位置发生变动，需要重新请求</li>
+<li><code>4XX</code>：请求报文有误</li>
+<li><code>5XX</code>：服务端发生错误</li>
+</ul>
+</li>
+</ul>
+<h3 id="1XX"><a href="#1XX" class="headerlink" title="1XX"></a>1XX</h3><ul>
+<li><code>101 Switching Protocols</code>：在HTTP升级为<code>WebSocket</code>的时候，如果服务器同意变更，就会发送状态码101</li>
+</ul>
+<h3 id="2XX"><a href="#2XX" class="headerlink" title="2XX"></a>2XX</h3><ul>
+<li><code>200 OK</code>：请求成功状态码，响应体中含有数据</li>
+<li><code>204 No Content</code>：含义同200，但是响应报文不含实体的主体部分</li>
+<li><code>206 Partial Content</code>：表示部分内容请求成功。使用场景为HTTP分快下载和断点续传，当然也会带上相应的响应头字段<code>Content-Range</code></li>
+</ul>
+<h3 id="3XX"><a href="#3XX" class="headerlink" title="3XX"></a>3XX</h3><ul>
+<li><code>301 Move Permanently</code>：永久重定向。HTTP升级HTTPS之后，之前站点再也不用，那就是301</li>
+<li><code>302 Found</code>：临时重定向。当前站点暂时不可用，那就是302，后续可能换回来</li>
+<li><code>304 Not Modified</code>：当命中协商缓存时会返回这个状态码</li>
+</ul>
+<h3 id="4XX"><a href="#4XX" class="headerlink" title="4XX"></a>4XX</h3><ul>
+<li><code>400 Bad Request</code>：请求无效。通常为前后端数据格式不一致或者其他原因</li>
+<li><code>403 Forbidden</code>：服务器已经得到请求，但是拒绝执行，比如没权限、法律禁止等等</li>
+<li><code>404 Not Found</code>：资源未找到，服务器不存在对应的资源</li>
+</ul>
+<h3 id="5XX"><a href="#5XX" class="headerlink" title="5XX"></a>5XX</h3><ul>
+<li><code>500 Internal Server Error</code>：服务器报错，有些时候可以在Response看到后端的报错信息等</li>
+<li><code>502 Bad Gateway</code>：服务器正常，但是访问出错</li>
+<li><code>503 Service Unavailable</code>：服务器繁忙或者停机维护，暂时无法处理请求</li>
+</ul>
+<h2 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h2><p><code>HTTP</code>的特性是明文传输，因此在传输的每一个环节，数据都有可能被第三方窃取或者篡改。</p>
+<p>具体来说，<code>HTTP</code>数据经过<code>TCP</code>层，然后经过<code>WIFI</code>路由器、运营商和目标服务器，这些环节中都有可能被中间人拿到数据并进行篡改，也就是我们常说的中间人攻击</p>
+<p>为了防范这样一类攻击，我们不得已引入新的加密方案，即<code>HTTPS</code></p>
+<p>简单来说HTTPS协议是有<code>HTTP协议</code>和<code>SSL协议</code>构建的可进行加密传输和身份认证的网络协议，比HTTP协议的安全性更高</p>
+<p>最后一个字母<code>S</code>指的是<code>SSL/TLS</code>协议，它位于HTTP协议与<code>TCP/IP</code>协议中间</p>
+<h3 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h3><ol>
+<li>浏览器请求URL，找到服务器，向服务器发送请求。服务器将自己的证书（包含服务器公钥）、对称加密算法种类以及其他相关信息返回给浏览器</li>
+<li>浏览器检查CA证书是否可依赖，确认证书的有效性</li>
+<li>如果不，给服务器发送警告，询问是否可以继续使用</li>
+<li>如果是，浏览器使用公钥加密一个随机对称密钥，包含加密的URL一起发送给服务器</li>
+<li>服务器用自己的私钥解密浏览器发送的钥匙，然后用这把对称加密的钥匙给浏览器请求的URL链接解密</li>
+<li>服务器用浏览器发送的对称钥匙给请求的网页加密，浏览器使用相同的钥匙就可以解密网页<br><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/46248cd079374dda975e04c934c2d60a~tplv-k3u1fbpfcp-watermark.image"></li>
+</ol>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>使用<code>HTTPS</code>协议可认证用户和服务器，确保数据发送到正确的客户机和服务器</li>
+<li><code>HTTPS</code>协议是由<code>SSL + HTTP</code>协议构建的可进行加密传输、身份认证的网络协议，要比HTTP协议安全，可防止数据在传输过程中不被窃取、改变，保证了数据的完整性</li>
+<li><code>HTTPS</code>是现行架构下最安全的解决方案，虽然不是最安全，但它大幅增加了中间人攻击的成本</li>
+<li>谷歌增在2014年8月份调整搜索引擎算法，并称”比起同等<code>HTTP</code>网站，采用<code>HTTPS</code>加密的网站在搜索结果中的排名将会更高”</li>
+</ul>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li><code>HTTPS</code>握手阶段比较费时，会使页面加载时间延长<code>50%</code>，增加<code>10%～20%</code>的耗电</li>
+<li><code>HTTPS</code>缓存不如<code>HTTP</code>高效，会增加数据开销</li>
+<li><code>SSL</code>证书也需要钱，功能越强大的证书费用越高</li>
+<li><code>SSL</code>证书需要绑定<code>IP</code>，不能在同一个<code>IP</code>上绑定多个域名，<code>IPV4</code>资源支持不了这种消耗</li>
+</ul>
+<h2 id="HTTP和HTTPS对比"><a href="#HTTP和HTTPS对比" class="headerlink" title="HTTP和HTTPS对比"></a>HTTP和HTTPS对比</h2><ul>
+<li><strong>概念对比</strong>：HTTP是超文本传输协议，信息是明文传输，HTTPS则是具有安全性的SSL加密传输协议</li>
+<li>费用对比。HTTPS协议需要CA证书，费用比较高</li>
+<li>连接方式和端口。使用不同的连接方式，端口也各有不同，一般而言，HTTP协议的端口为80，HTTPS的端口是443</li>
+<li>安全性对比。HTTP的连接很简单，是无状态的；HTTPS协议是由SSL + HTTP协议构建的可进行加密传输、身份认证的网络协议，比HTTP协议安全</li>
+</ul>
+<p><a href="https://zhuanlan.zhihu.com/p/43789231">彻底搞懂HTTPS的加密机制</a></p>
+<p><a href="https://juejin.cn/post/6844903592965439501">面试带你飞：这是一份全面的 计算机网络基础 总结攻略</a></p>
+<p><a href="https://juejin.cn/post/6844903608421449742">看图学HTTPS</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/96494976">你知道，HTTPS用的是对称加密还是非对称加密？</a></p>
+<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status">HTTP 响应代码</a></p>
+]]></content>
+      <tags>
+        <tag>frontend</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JavaScript同步异步</title>
+    <url>/2021/03/05/JavaScript%E5%90%8C%E6%AD%A5%E5%BC%82%E6%AD%A5/</url>
+    <content><![CDATA[<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>在编写Js程序的时候，毫无疑问的就会遇到发送http请求、读取数据库数据、用户点击按钮… 它们都有一个相同点就是都是耗时操作，也有不耗时操作，它们都在等待着被执行。</p>
+<p>只有当当前任务完成，才回去继续执行下一个任务，这也是程序能够正常运行的根本所在，如果所有的任务都在同一时刻一起执行，那么处理器到底应该先执行哪一个呢？况且要执行的任务之间大多还存在着某种不可描述的关系，比如后面一个任务需要先获取到前面一个任务的执行结果才能够继续执行，否则就可能直接报错了。</p>
+<h3 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h3><blockquote>
+<p>比如一百个人在排队上厕所，但是厕所只有两个坑位，这时候人们又不愿意去找别的WC，那么只能够等前面的人出来后面的人进去，这样循环往复。</p>
+</blockquote>
+<p>同步要求多个任务必须排队等待被处理器执行，只有等前一个任务执行完成了，后面的任务才能够开始执行，也就是必须按照先后顺序来。</p>
+<h3 id="异步"><a href="#异步" class="headerlink" title="异步"></a>异步</h3><blockquote>
+<p>还是一百个人上厕所，当快到你们的时候你前面俩个大哥在旁边抽着烟没注意到自己了，这个时候你就先上去了，可能等你出来了他们也还在抽烟…</p>
+</blockquote>
+<p>异步要求有多个任务需要被执行时，谁快就先执行谁，可以不按照顺序来。</p>
+<h2 id="同步-1"><a href="#同步-1" class="headerlink" title="同步"></a>同步</h2><p>Javascript是<strong>单线程语言</strong>，浏览器中负责解释和执行Javascript代码的只是一个线程（单线程），也就是说同一时刻，同一个Javascript引擎只能够执行一个任务。在程序运行的时候，所有的任务都在Javascript的主线程上排队执行。当一个任务被执行的时候，它就会被推入调用栈，执行完毕后，又被推出调用栈。</p>
+<p>想要理解什么是主线程，我们先要搞懂什么是<strong>执行环境</strong>和<strong>调用栈</strong></p>
+<ul>
+<li><p>执行上下文<br>执行上下文指的是执行JavaScript代码的环境，它是一个抽象的概念，就像我们每个人都活在时间的长河中，但是时间却看不见摸不着。 只要有代码在JavaScript中运行，它就一定是在执行上下文中运行。函数的代码在函数的执行上下文内执行，而全局环境中的代码则在全局执行上下文内执行，而且每个函数都会创建属于自己的执行上下文</p>
+</li>
+<li><p>调用栈<br>调用栈顾名思义是一个栈，是一种数据结构。它的作用就是存储代码运行时的执行上下文。</p>
+</li>
+</ul>
+<p>Javascript跟C语言类似，代码都是一行一行执行的。当上面的代码开始执行之前，Javascript引擎会先创建调用栈，然后创建一个全局执行上下文（main主线程），接着代码开始执行。</p>
+<h2 id="异步-1"><a href="#异步-1" class="headerlink" title="异步"></a>异步</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f1</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">2</span>)</span><br><span class="line">  &#125;, <span class="number">2000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f3</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">3</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">f1()</span><br><span class="line">f2()</span><br><span class="line">f3()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1, 3, 2</span></span><br></pre></td></tr></table></figure>
+
+<p>这里因为f2是一个耗时操作，需要耗费2s才能够运行完毕，所以这就触发了Javascript的异步执行机制。</p>
+<p><strong>回调函数</strong><br>如果我们就是不想输出132而是123呢，其实可以通过回调函数来解决这个问题</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f1</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f2</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">2</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 这就是 f3()</span></span><br><span class="line">    callback()</span><br><span class="line">  &#125;, <span class="number">2000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f3</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">3</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">f1()</span><br><span class="line">f2(f3)</span><br></pre></td></tr></table></figure>
+
+<p>将f3作为参数传入f2，f2在执行完耗时操作之后，再来调用我们传入的f3，这样就保证了我们所要求的代码执行顺序，<br>回调函数是Javascript中的一种异步编程方式。</p>
+]]></content>
+      <tags>
+        <tag>frontend</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>React总结</title>
+    <url>/2021/03/05/React%E6%80%BB%E7%BB%93/</url>
+    <content><![CDATA[<h2 id="React相比原生的好处"><a href="#React相比原生的好处" class="headerlink" title="React相比原生的好处"></a>React相比原生的好处</h2><ul>
+<li><strong>组件化</strong>这其中以react贯彻最为彻底，甚至可以到函数级别的原子组件，高度的组件化可以让我们的组件易于维护、易于组合扩展。</li>
+<li><strong>天然分层</strong>JQuery时代的代码大部分情况下是面条代码，耦合严重，现代框架不管是MVC、MVP或者是MVVM模式都可以帮助我们进行分层，代码解耦更易于读写操作。</li>
+<li><strong>生态</strong>现在主流框架都自带生态，不管是数据流管理架构还是UI库都有成熟的解决方案。</li>
+<li><strong>开发效率</strong>现代前端框架都默认自动更新DOM，而不在是需要我们手动进行操作，解放了开发者的手动DOM成本，间接提高了开发效率，从根本上解决了UI与状态同步的问题。</li>
+</ul>
+<h2 id="React和Vue的对比"><a href="#React和Vue的对比" class="headerlink" title="React和Vue的对比"></a>React和Vue的对比</h2><ul>
+<li><p><strong>相同</strong></p>
+<ol>
+<li>虚拟DOM – 映射真实DOM，通过新旧DOM的diff对比，更好的跟踪渲染页面。</li>
+<li>组件化 – 将应用拆分成一个个功能明确的模块，每个模块之间可以通过合适的方式互相联系。</li>
+<li>构建工具 – 都有自己的构建工具，通过webpack + babel去搭脚手架工具。</li>
+<li>Chrome开发工具 – 两者都有很好的Chrome扩展去帮助查找Bug</li>
+<li>配套框架 – Vue有Vue-router和Vuex，React有React-router和React-Redux</li>
+</ol>
+</li>
+<li><p><strong>不同</strong></p>
+<ol>
+<li>模块 VS JSX – Vue推荐编写近似常规HTML的模板进行渲染，而React推荐JSX的书写方式。</li>
+<li>监听数据变化的不同 – Vue使用的是可变数据，而React更强调数据的不可变。在Vue中通过v-model绑定的数据，用户改变输入值后对应的值也会做出相应的改变。而React则是需要通过setState进行设置的变化</li>
+<li>Diff不同 – Vue通过双向链表实现边对比边更新DOM，而React通过Diff队列保存需要更新的DOM，得到patch树，在统一批量更新DOM</li>
+<li>开发团队 – Vue开始的核心是Evan You，后面再招了其他人组成团队；React则是一开始就是Facebook团队搞的。所以网上对比源码情况的话，Vue的比React的简单易懂。</li>
+</ol>
+</li>
+</ul>
+<h2 id="setState"><a href="#setState" class="headerlink" title="setState"></a>setState</h2><ul>
+<li>调用setState之后发生了什么？<ul>
+<li>在代码中调用setState之后，React会将传入的参数对象与组件当前的状态合并，触发所谓的调和过程</li>
+<li>经过调和过程，React会以相对高效的方式根据新的状态构建React元素树并且着手重新渲染整个UI界面</li>
+<li>在React得到元素树之后，React会自动计算新树和老树之间的节点差异，然后根据差异对界面进行最小化重新渲染<br>在差异计算算法（Diff）中，React能够相对精准的知道哪些位置发生了改变，以及应该如何改变，保证了按需更新而不是全部重新渲染</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>合并参数对象，触发调和过程</li>
+<li>计算新树和老树差异（Diff）</li>
+<li>根据差异进行最小化重新渲染</li>
+</ol>
+<h3 id="setState是同步"><a href="#setState是同步" class="headerlink" title="setState是同步"></a>setState是同步</h3><ul>
+<li>有时候同步，有时候异步<ol>
+<li>setState在合成事件和钩子函数中是异步的，在原生事件和setTimeout是异步的。</li>
+<li>setState的异步，并不是说内部由异步代码实现，它本身执行的过程和代码是同步的，只是合成事件和钩子函数和钩子函数的调用顺序在更新之前，导致在合成事件和钩子函数中没法立马拿到更新后的值，从而形成了所谓的异步，</li>
+<li>setState可以通过第二个参数，在回调方法中拿到更新后的结果</li>
+</ol>
+</li>
+</ul>
+<h2 id="React-this问题"><a href="#React-this问题" class="headerlink" title="React this问题"></a>React this问题</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123; Component &#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">App</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="title">constructor</span> (<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="built_in">super</span>(props);</span><br><span class="line">    <span class="built_in">this</span>.handleClick = <span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  handleClick () &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;jsliang 2020&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  handleClick2 = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;jsliang 2021&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  render () &#123;</span><br><span class="line">    <span class="comment">// 四种绑定方法</span></span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;div className=<span class="string">&#x27;App&#x27;</span>&gt;</span><br><span class="line">        &#123;<span class="comment">/* 方法一：通过 constructor 中进行 bind 绑定 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick&#125;&gt;btn <span class="number">1</span>&lt;/button&gt;</span><br><span class="line"></span><br><span class="line">        &#123;<span class="comment">/* 方法二：在里边绑定 this */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>)&#125;&gt;btn <span class="number">2</span>&lt;/button&gt;</span><br><span class="line"></span><br><span class="line">        &#123;<span class="comment">/* 方法三：通过箭头函数返回事件 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="function">() =&gt;</span> <span class="built_in">this</span>.handleClick()&#125;&gt;btn <span class="number">3</span>&lt;/button&gt;</span><br><span class="line">        </span><br><span class="line">        &#123;<span class="comment">/* 方法四：让方法变成箭头函数 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick2&#125;&gt;btn <span class="number">4</span>&lt;/button&gt;</span><br><span class="line">        </span><br><span class="line">        &#123;<span class="comment">/* 额外：直接调用不需要绑定 this */</span>&#125;</span><br><span class="line">        &#123;<span class="built_in">this</span>.handleClick()&#125;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> App;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用bind和箭头函数有什么区别<ul>
+<li>箭头函数除了代码少，与普通函数最大的不同就是：this是由声明该函数时候定义的，一般是隐性定义为声明该函数时的作用域this。</li>
+<li>通过bind的话，相当于：Foo.prototype.a = function() {}，是通过原型链的一个指针绑定的</li>
+</ul>
+</li>
+</ul>
+<h2 id="Redux的工作流程"><a href="#Redux的工作流程" class="headerlink" title="Redux的工作流程"></a>Redux的工作流程</h2><ul>
+<li>redux的核心概念：<ul>
+<li>Store：保存数据的地方，可以把它当成一个容器，整个应用只能有一个Store</li>
+<li>State：Store对象包含所有数据，如果想得到某个时点的数据，就要对Store生成快照，这种时点的数据集合就叫State</li>
+<li>Action：State的变化，会导致View的变化。但是，用户接触不到Stae，只能接触到View。所以，State的变化必须是View导致的。Action就是View发出的通知，表示State应该要发生变化了。</li>
+<li>Action Creator：View要发送多少种消息，就会有多少种Action。如果都手写，会很麻烦，所以我们定义一个函数来生成Action</li>
+<li>Reducer：Store收到Action之后，必须给出一个新的State，这样View才会发生变化。这种State的计算过程就叫Reducer。Reducer是一个函数，它接受Action和当前State作为参数，返回一个新的State。</li>
+<li>dispatch：是View发出Action的唯一方法</li>
+</ul>
+</li>
+<li>完成的工作流程<ol>
+<li>首先，用户（通过View）发出Action，发出方式就用到了dispatch方法</li>
+<li>Store自动调用Reducer，并且传入两个参数：当前State和收到的Action，Reducer会返回新的State</li>
+<li>State一旦有变化，Store就会调用监听函数，来更新View<br><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3d0f987b87c348189c0f4f528831955f~tplv-k3u1fbpfcp-watermark.image"></li>
+</ol>
+</li>
+</ul>
+<h2 id="react-redux是如何工作的？"><a href="#react-redux是如何工作的？" class="headerlink" title="react-redux是如何工作的？"></a>react-redux是如何工作的？</h2><ul>
+<li>Provider：Provider的作用是从最外部封装了整个应用，并向connect模块传递store</li>
+<li>connect：负责连接React和Redux<ul>
+<li>获取state：connect通过context获取Provider中的store，通过store.getState()获取整个store tree上所有state</li>
+<li>包装原组件：将state和action通过props的方式传入到原组件内部wrapWithConnect返回一个ReactComponent对象Connect， Connect重新render外部传入的原组件WrappedComponent，并把Connect中传入的mapStateToProps,mapDispatchToProps与组件上原有的props合并后，通过属性的方式传给WrappedComponent</li>
+<li>监听store tree变化：connect缓存了store tree中state的状态，通过当前的state状态和变更前state状态进行比较，从而确定是否调用this.setState()方法触发Connect及其子组件的重新渲染<br><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2c584f625bc04095b30138b41386074c~tplv-k3u1fbpfcp-watermark.image"></li>
+</ul>
+</li>
+</ul>
+<h2 id="虚拟DOM"><a href="#虚拟DOM" class="headerlink" title="虚拟DOM"></a>虚拟DOM</h2><h3 id="浏览器渲染过程"><a href="#浏览器渲染过程" class="headerlink" title="浏览器渲染过程"></a>浏览器渲染过程</h3><ul>
+<li>创建DOM树。用HTML解析器分析HTML元素，创建一棵DOM树</li>
+<li>创建CSS规则书（CSS rule tree）。用CSS解析器解析CSS文件和inline样式，生成页面的样式表</li>
+<li>创建Render树。将DOM树和CSS规则树关联起来，构建Render树</li>
+<li>布局Layout。根据Render树，浏览器开始布局，为每个Render树上的节点确定一个在显示器上出现的精确坐标</li>
+<li>绘制Painting。在Render树和节点显示坐标的基础上，调用每个节点的paint方法，将它们绘制出来</li>
+</ul>
+<h3 id="DOM操作昂贵"><a href="#DOM操作昂贵" class="headerlink" title="DOM操作昂贵"></a>DOM操作昂贵</h3><p>由于在浏览器中操作DOM是很昂贵的</p>
+<ul>
+<li>用原生JS或者JQuery操作DOM时，浏览器会从构建DOM树开始从头到尾执行一遍流程<blockquote>
+<p>拓展要点：回流和重绘</p>
+</blockquote>
+</li>
+</ul>
+<p>频繁地操作DOM，会产生一定的性能问题，因此我们需要在这一层抽象，在patch过程中尽可能地一次性将差异更新到DOM中，这样保证了DOM不会出现性能很差的情况。</p>
+<p>但是这样并不能解决问题，所以就有了虚拟DOM；</p>
+<p>虚拟DOM本质就是用一个原生的JavaScript对象去描述一个DOM节点，是对真实DOM的一层抽象</p>
+<blockquote>
+<p>真实DOM节点</p>
+</blockquote>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;container&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>JS模拟虚拟DOM</p>
+</blockquote>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> tree = Element(<span class="string">&#x27;div&#x27;</span>, &#123; <span class="attr">id</span>: <span class="string">&#x27;container&#x27;</span> &#125;, &#123;</span><br><span class="line">  Element(<span class="string">&#x27;ul&#x27;</span>, &#123;&#125;, [</span><br><span class="line">    Element(<span class="string">&#x27;li&#x27;</span>, &#123;&#125;, [<span class="string">&#x27;新节点值&#x27;</span>])</span><br><span class="line">  ]),</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> root = tree.render();</span><br><span class="line"><span class="built_in">document</span>.querySelector(<span class="string">&#x27;#container&#x27;</span>).appendChild(root);</span><br></pre></td></tr></table></figure>
+<p>可以看到虚拟DOM对象最基本的三个属性</p>
+<ul>
+<li>标签类型</li>
+<li>标签元素的属性</li>
+<li>标签元素的子节点</li>
+</ul>
+<h3 id="Diff算法"><a href="#Diff算法" class="headerlink" title="Diff算法"></a>Diff算法</h3><p>两棵树完全对比的时间复杂度是0(n^3)，而React的Diff算法的时间复杂度是0(n)</p>
+<p>要实现这么低的时间复杂度，意味着在比较差异时只会对同一层级的节点进行比较，因为如果进行完全的比较，算法实际复杂度会过高，所以舍弃了这种完全的比较方式，采用了同层比较的方式</p>
+<p>Diff算法的核心就是对虚拟DOM节点进行深度优先遍历，并对每一个虚拟节点进行编号，在遍历的过程中对同一个层级的节点进行比较，最终得到比较后的差异</p>
+<p>Diff的实现，最粗暴的方法就是遍历每个新虚拟DOM节点，和旧虚拟DOM节点比对。在旧DOM中是否存在，不同就卸载原来的改成新的</p>
+<blockquote>
+<p>React或Vue中的key：我们在写业务的时候，经常被告知key值不能是索引值index，why？？？</p>
+</blockquote>
+<p>假如有四个元素，旧的是1、2、3、4，新的元素是1、3、2、4，这个时候我们如果用了索引值index，那么它们始终只会是0-3。这样的话React或Vue就没法比较好的监听它的一个变动</p>
+<p>所以一般来说，我们将key值定位成数组的id或者其他的值，方便它变动的时候去更好的监听它</p>
+<p>这样子通过Diff比较完毕之后，我们就可以获取需要变动的内容，最终去更新真实的DOM节点</p>
+<h3 id="虚拟DOM实现原理"><a href="#虚拟DOM实现原理" class="headerlink" title="虚拟DOM实现原理"></a>虚拟DOM实现原理</h3><ul>
+<li>虚拟DOM本质上是JavaScript对象，是对真实DOM的抽象</li>
+<li>状态变更的时候，记录新树和旧树的差异</li>
+<li>最后把差异更新到真正的DOM中</li>
+</ul>
+<h3 id="虚拟DOM和真实DOM比对"><a href="#虚拟DOM和真实DOM比对" class="headerlink" title="虚拟DOM和真实DOM比对"></a>虚拟DOM和真实DOM比对</h3><ul>
+<li>优点<ul>
+<li>保证性能下限： 虚拟DOM可以经过Diff找出最小差异，然后批量进行patch，这种操作虽然比不上手动优化，但是比起粗暴的DOM操作性能要好很多，因此虚拟DOM可以保证性能下限</li>
+<li>无需手动操作DOM：虚拟DOM的Diff和patch都是在一次更新中自动进行的，我们无需手动操作DOM，极大提高了开发效率</li>
+<li>跨平台：虚拟DOM本质上是JavaScript对象，而DOM与平台强相关，相比之下虚拟DOM可以进行更方便地跨平台操作，例如服务器渲染、移动端开发等</li>
+</ul>
+</li>
+<li>缺点<ul>
+<li>无法进行极致优化：在一些性能要求极高的应用中虚拟DOM无法进行针对性的细致优化，例如vsCode采用直接手动操作DOM的方式进行极端的性能优化。</li>
+</ul>
+</li>
+</ul>
+<h2 id="Diff算法-1"><a href="#Diff算法-1" class="headerlink" title="Diff算法"></a>Diff算法</h2><p>比较原生虚拟DOM和新的虚拟DOM的区别，使用Diff(Different)算法<br><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c4a7a0c1c7e24cf98be2fe0c678fdb0e~tplv-k3u1fbpfcp-watermark.image"></p>
+<p>如上图，在React中，对于setState，它采用异步操作，统一对state中的数据进行更改</p>
+<hr>
+<p><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/91b32fd31a5c410c9753ffb68d25251a~tplv-k3u1fbpfcp-watermark.image"></p>
+<ol>
+<li>比对第一层的DOM节点，如果它相同，则往下继续对比；如果它不同，则停止对比，更新第一层及以下的DOM节点</li>
+<li>比对第二次的DOM节点……</li>
+<li>形成一种比对算法</li>
+</ol>
+<p><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fd1a8a58f88342a68cc88b91f33aad3b~tplv-k3u1fbpfcp-watermark.image"></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><ul>
+<li>把树形结构按照层级分解，只比较同级元素</li>
+<li>给列表结构的每个单元添加唯一的key属性，方便比较</li>
+<li>React只会匹配相同class的component(这里面的class指的是组件的名字)</li>
+<li>合并操作，调用component的setState方法的时候，React将其标记为dirty。到每一个事件循环结束，React检查所有标记dirty的component重新绘制</li>
+<li>选择性子树渲染。开发人员可以重写shouldComponentUpdate提高Diff的性能</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>frontend</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>react面试题</title>
+    <url>/2021/03/05/react%E9%9D%A2%E8%AF%95%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="生命周期中的哪一步应该发起AJAX请求"><a href="#生命周期中的哪一步应该发起AJAX请求" class="headerlink" title="生命周期中的哪一步应该发起AJAX请求"></a>生命周期中的哪一步应该发起AJAX请求</h2><ul>
+<li>应该在componentDidMount函数中执行<ol>
+<li>React下一代调和算法Fiber会通过开始或停止渲染的方式优化应用性能，其会影响到componentDidWillMount的触发次数。对于componentDidWillMount这个生命周期函数的调用次数会变得不确定，React可能会多次频繁调用componentDidWillMount。如果我们将AJAX请求放到componentDidWillMount函数中，那么显而易见其会被触发多次，自然也就不是一个好的选择</li>
+<li>如果我们将AJAX请求放置在别的函数中，我们并不能保证请求仅在组件挂载完毕之后才会要求相应。如果我们的数据请求在组件挂载之前就完成，并且调用了setState函数将数据添加到组件状态中，对于未挂载的组件则会报错。而在componentDidMount函数中进行AJAX请求就能有效避免这个问题</li>
+</ol>
+</li>
+</ul>
+<h2 id="shouldComponentUpdate的作用是啥以及为什么这么重要"><a href="#shouldComponentUpdate的作用是啥以及为什么这么重要" class="headerlink" title="shouldComponentUpdate的作用是啥以及为什么这么重要"></a>shouldComponentUpdate的作用是啥以及为什么这么重要</h2><ul>
+<li>shouldComponentUpdate允许我们手动判断是否进行组件更新，根据组件的应用场景设置函数的合理返回值能够帮我们避免不必要的更新</li>
+</ul>
+<h2 id="如何告诉React应该编译生产环境版本"><a href="#如何告诉React应该编译生产环境版本" class="headerlink" title="如何告诉React应该编译生产环境版本"></a>如何告诉React应该编译生产环境版本</h2><ul>
+<li>通常情况下会使用webpack的DefinePlugin方法来将NODE_ENV变量值设置为production。编译版本中React会忽略propType验证以及其他的告警信息，同时还会降低代码库的大小，React使用了Uglify插件来移除生产环境下不必要的注释等信息。</li>
+</ul>
+<h2 id="React中keys的作用是什么？"><a href="#React中keys的作用是什么？" class="headerlink" title="React中keys的作用是什么？"></a>React中keys的作用是什么？</h2><ul>
+<li>Keys是React用于追踪哪些列表中元素被修改、被添加或者被移除的辅助标识。<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">render () &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ul&gt;</span><br><span class="line">      &#123;<span class="built_in">this</span>.state.todoItems.map(<span class="function">(<span class="params">&#123;item, key&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">&#123;key&#125;</span>&gt;</span>&#123;item&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">      &#125;)&#125;</span><br><span class="line">    &lt;/ul&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>react利用key来识别组件，它是一种身份标识，相同的key React认为是同一组件，这样后续相同的key对应组件都不会被创建</li>
+<li>有了key属性之后，就可以与组件建立了一种对应关系，react根据key来决定是销毁重新创建组件还是更新组建</li>
+<li>key相同，若组件属性有所变化，则React只更新组件对应的属性；没有变化则不更新</li>
+<li>key值不同，则React先销毁该组件（有状态组件的componentWillUnmount会执行），然后重新创建该组件（有状态组件的constructor和componentWillUnmount都会执行）</li>
+</ul>
+<h2 id="触发多次setState，那么render会执行几次？"><a href="#触发多次setState，那么render会执行几次？" class="headerlink" title="触发多次setState，那么render会执行几次？"></a>触发多次setState，那么render会执行几次？</h2><ul>
+<li>多次执行setState会合并为一次render，因为setState并不会立即改变state的值，而是将其放到任务队列中，最终将多个setState合并，一次性更新页面。</li>
+</ul>
+<p><strong>所以</strong> 我们可以在代码里多次调用setState，每次只需要关注当前修改的字段就可以了</p>
+<h3 id="为什么建议传递给setState的参数是一个callback而不是一个对象？"><a href="#为什么建议传递给setState的参数是一个callback而不是一个对象？" class="headerlink" title="为什么建议传递给setState的参数是一个callback而不是一个对象？"></a>为什么建议传递给setState的参数是一个callback而不是一个对象？</h3><ul>
+<li>因为this.props和this.state的更新可能是异步的，不能依赖它们去计算下一个state</li>
+</ul>
+<h3 id="为什么setState是一个异步的？"><a href="#为什么setState是一个异步的？" class="headerlink" title="为什么setState是一个异步的？"></a>为什么setState是一个异步的？</h3><ul>
+<li>当批量操作state的时候可以让DOM渲染的更快，也就是说多个setState在执行的过程中还需要被合并</li>
+</ul>
+<h2 id="this-setState之后React做了哪些操作"><a href="#this-setState之后React做了哪些操作" class="headerlink" title="this.setState之后React做了哪些操作?"></a>this.setState之后React做了哪些操作?</h2><ul>
+<li>shouldComponentUpdate</li>
+<li>componentWillUpdate</li>
+<li>render</li>
+<li>componentDidUpdate</li>
+</ul>
+<h2 id="为什么虚拟dom会提高性能"><a href="#为什么虚拟dom会提高性能" class="headerlink" title="为什么虚拟dom会提高性能"></a>为什么虚拟dom会提高性能</h2><ul>
+<li>虚拟DOM相当于在JS和真实DOM中间加了一个缓存，利用DOM Diff避免了没有必要的dom操作，从而提高性能</li>
+<li>用JavaScript对象结构表示DOM树的结构</li>
+<li>然后用这个树构建一个真正的DOM树，插到文档当中当状态变更的时候，重新构造一棵树的对象树</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>frontend</tag>
+      </tags>
+  </entry>
+</search>
