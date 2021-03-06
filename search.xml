@@ -322,6 +322,55 @@
       </tags>
   </entry>
   <entry>
+    <title>react question</title>
+    <url>/2021/03/05/react%E9%9D%A2%E8%AF%95%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="生命周期中的哪一步应该发起AJAX请求"><a href="#生命周期中的哪一步应该发起AJAX请求" class="headerlink" title="生命周期中的哪一步应该发起AJAX请求"></a>生命周期中的哪一步应该发起AJAX请求</h2><ul>
+<li>应该在componentDidMount函数中执行<ol>
+<li>React下一代调和算法Fiber会通过开始或停止渲染的方式优化应用性能，其会影响到componentDidWillMount的触发次数。对于componentDidWillMount这个生命周期函数的调用次数会变得不确定，React可能会多次频繁调用componentDidWillMount。如果我们将AJAX请求放到componentDidWillMount函数中，那么显而易见其会被触发多次，自然也就不是一个好的选择</li>
+<li>如果我们将AJAX请求放置在别的函数中，我们并不能保证请求仅在组件挂载完毕之后才会要求相应。如果我们的数据请求在组件挂载之前就完成，并且调用了setState函数将数据添加到组件状态中，对于未挂载的组件则会报错。而在componentDidMount函数中进行AJAX请求就能有效避免这个问题</li>
+</ol>
+</li>
+</ul>
+<h2 id="shouldComponentUpdate的作用是啥以及为什么这么重要"><a href="#shouldComponentUpdate的作用是啥以及为什么这么重要" class="headerlink" title="shouldComponentUpdate的作用是啥以及为什么这么重要"></a>shouldComponentUpdate的作用是啥以及为什么这么重要</h2><ul>
+<li>shouldComponentUpdate允许我们手动判断是否进行组件更新，根据组件的应用场景设置函数的合理返回值能够帮我们避免不必要的更新</li>
+</ul>
+<h2 id="如何告诉React应该编译生产环境版本"><a href="#如何告诉React应该编译生产环境版本" class="headerlink" title="如何告诉React应该编译生产环境版本"></a>如何告诉React应该编译生产环境版本</h2><ul>
+<li>通常情况下会使用webpack的DefinePlugin方法来将NODE_ENV变量值设置为production。编译版本中React会忽略propType验证以及其他的告警信息，同时还会降低代码库的大小，React使用了Uglify插件来移除生产环境下不必要的注释等信息。</li>
+</ul>
+<h2 id="React中keys的作用是什么？"><a href="#React中keys的作用是什么？" class="headerlink" title="React中keys的作用是什么？"></a>React中keys的作用是什么？</h2><ul>
+<li>Keys是React用于追踪哪些列表中元素被修改、被添加或者被移除的辅助标识。<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">render () &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ul&gt;</span><br><span class="line">      &#123;<span class="built_in">this</span>.state.todoItems.map(<span class="function">(<span class="params">&#123;item, key&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">&#123;key&#125;</span>&gt;</span>&#123;item&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">      &#125;)&#125;</span><br><span class="line">    &lt;/ul&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>react利用key来识别组件，它是一种身份标识，相同的key React认为是同一组件，这样后续相同的key对应组件都不会被创建</li>
+<li>有了key属性之后，就可以与组件建立了一种对应关系，react根据key来决定是销毁重新创建组件还是更新组建</li>
+<li>key相同，若组件属性有所变化，则React只更新组件对应的属性；没有变化则不更新</li>
+<li>key值不同，则React先销毁该组件（有状态组件的componentWillUnmount会执行），然后重新创建该组件（有状态组件的constructor和componentWillUnmount都会执行）</li>
+</ul>
+<h2 id="触发多次setState，那么render会执行几次？"><a href="#触发多次setState，那么render会执行几次？" class="headerlink" title="触发多次setState，那么render会执行几次？"></a>触发多次setState，那么render会执行几次？</h2><ul>
+<li>多次执行setState会合并为一次render，因为setState并不会立即改变state的值，而是将其放到任务队列中，最终将多个setState合并，一次性更新页面。</li>
+</ul>
+<p><strong>所以</strong> 我们可以在代码里多次调用setState，每次只需要关注当前修改的字段就可以了</p>
+<h3 id="为什么建议传递给setState的参数是一个callback而不是一个对象？"><a href="#为什么建议传递给setState的参数是一个callback而不是一个对象？" class="headerlink" title="为什么建议传递给setState的参数是一个callback而不是一个对象？"></a>为什么建议传递给setState的参数是一个callback而不是一个对象？</h3><ul>
+<li>因为this.props和this.state的更新可能是异步的，不能依赖它们去计算下一个state</li>
+</ul>
+<h3 id="为什么setState是一个异步的？"><a href="#为什么setState是一个异步的？" class="headerlink" title="为什么setState是一个异步的？"></a>为什么setState是一个异步的？</h3><ul>
+<li>当批量操作state的时候可以让DOM渲染的更快，也就是说多个setState在执行的过程中还需要被合并</li>
+</ul>
+<h2 id="this-setState之后React做了哪些操作"><a href="#this-setState之后React做了哪些操作" class="headerlink" title="this.setState之后React做了哪些操作?"></a>this.setState之后React做了哪些操作?</h2><ul>
+<li>shouldComponentUpdate</li>
+<li>componentWillUpdate</li>
+<li>render</li>
+<li>componentDidUpdate</li>
+</ul>
+<h2 id="为什么虚拟dom会提高性能"><a href="#为什么虚拟dom会提高性能" class="headerlink" title="为什么虚拟dom会提高性能"></a>为什么虚拟dom会提高性能</h2><ul>
+<li>虚拟DOM相当于在JS和真实DOM中间加了一个缓存，利用DOM Diff避免了没有必要的dom操作，从而提高性能</li>
+<li>用JavaScript对象结构表示DOM树的结构</li>
+<li>然后用这个树构建一个真正的DOM树，插到文档当中当状态变更的时候，重新构造一棵树的对象树</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>frontend</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>React总结</title>
     <url>/2021/03/05/React%E6%80%BB%E7%BB%93/</url>
     <content><![CDATA[<h2 id="React相比原生的好处"><a href="#React相比原生的好处" class="headerlink" title="React相比原生的好处"></a>React相比原生的好处</h2><ul>
@@ -479,55 +528,6 @@
 <li>React只会匹配相同class的component(这里面的class指的是组件的名字)</li>
 <li>合并操作，调用component的setState方法的时候，React将其标记为dirty。到每一个事件循环结束，React检查所有标记dirty的component重新绘制</li>
 <li>选择性子树渲染。开发人员可以重写shouldComponentUpdate提高Diff的性能</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>frontend</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>react question</title>
-    <url>/2021/03/05/react%E9%9D%A2%E8%AF%95%E9%A2%98/</url>
-    <content><![CDATA[<h2 id="生命周期中的哪一步应该发起AJAX请求"><a href="#生命周期中的哪一步应该发起AJAX请求" class="headerlink" title="生命周期中的哪一步应该发起AJAX请求"></a>生命周期中的哪一步应该发起AJAX请求</h2><ul>
-<li>应该在componentDidMount函数中执行<ol>
-<li>React下一代调和算法Fiber会通过开始或停止渲染的方式优化应用性能，其会影响到componentDidWillMount的触发次数。对于componentDidWillMount这个生命周期函数的调用次数会变得不确定，React可能会多次频繁调用componentDidWillMount。如果我们将AJAX请求放到componentDidWillMount函数中，那么显而易见其会被触发多次，自然也就不是一个好的选择</li>
-<li>如果我们将AJAX请求放置在别的函数中，我们并不能保证请求仅在组件挂载完毕之后才会要求相应。如果我们的数据请求在组件挂载之前就完成，并且调用了setState函数将数据添加到组件状态中，对于未挂载的组件则会报错。而在componentDidMount函数中进行AJAX请求就能有效避免这个问题</li>
-</ol>
-</li>
-</ul>
-<h2 id="shouldComponentUpdate的作用是啥以及为什么这么重要"><a href="#shouldComponentUpdate的作用是啥以及为什么这么重要" class="headerlink" title="shouldComponentUpdate的作用是啥以及为什么这么重要"></a>shouldComponentUpdate的作用是啥以及为什么这么重要</h2><ul>
-<li>shouldComponentUpdate允许我们手动判断是否进行组件更新，根据组件的应用场景设置函数的合理返回值能够帮我们避免不必要的更新</li>
-</ul>
-<h2 id="如何告诉React应该编译生产环境版本"><a href="#如何告诉React应该编译生产环境版本" class="headerlink" title="如何告诉React应该编译生产环境版本"></a>如何告诉React应该编译生产环境版本</h2><ul>
-<li>通常情况下会使用webpack的DefinePlugin方法来将NODE_ENV变量值设置为production。编译版本中React会忽略propType验证以及其他的告警信息，同时还会降低代码库的大小，React使用了Uglify插件来移除生产环境下不必要的注释等信息。</li>
-</ul>
-<h2 id="React中keys的作用是什么？"><a href="#React中keys的作用是什么？" class="headerlink" title="React中keys的作用是什么？"></a>React中keys的作用是什么？</h2><ul>
-<li>Keys是React用于追踪哪些列表中元素被修改、被添加或者被移除的辅助标识。<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">render () &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ul&gt;</span><br><span class="line">      &#123;<span class="built_in">this</span>.state.todoItems.map(<span class="function">(<span class="params">&#123;item, key&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">&#123;key&#125;</span>&gt;</span>&#123;item&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">      &#125;)&#125;</span><br><span class="line">    &lt;/ul&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>react利用key来识别组件，它是一种身份标识，相同的key React认为是同一组件，这样后续相同的key对应组件都不会被创建</li>
-<li>有了key属性之后，就可以与组件建立了一种对应关系，react根据key来决定是销毁重新创建组件还是更新组建</li>
-<li>key相同，若组件属性有所变化，则React只更新组件对应的属性；没有变化则不更新</li>
-<li>key值不同，则React先销毁该组件（有状态组件的componentWillUnmount会执行），然后重新创建该组件（有状态组件的constructor和componentWillUnmount都会执行）</li>
-</ul>
-<h2 id="触发多次setState，那么render会执行几次？"><a href="#触发多次setState，那么render会执行几次？" class="headerlink" title="触发多次setState，那么render会执行几次？"></a>触发多次setState，那么render会执行几次？</h2><ul>
-<li>多次执行setState会合并为一次render，因为setState并不会立即改变state的值，而是将其放到任务队列中，最终将多个setState合并，一次性更新页面。</li>
-</ul>
-<p><strong>所以</strong> 我们可以在代码里多次调用setState，每次只需要关注当前修改的字段就可以了</p>
-<h3 id="为什么建议传递给setState的参数是一个callback而不是一个对象？"><a href="#为什么建议传递给setState的参数是一个callback而不是一个对象？" class="headerlink" title="为什么建议传递给setState的参数是一个callback而不是一个对象？"></a>为什么建议传递给setState的参数是一个callback而不是一个对象？</h3><ul>
-<li>因为this.props和this.state的更新可能是异步的，不能依赖它们去计算下一个state</li>
-</ul>
-<h3 id="为什么setState是一个异步的？"><a href="#为什么setState是一个异步的？" class="headerlink" title="为什么setState是一个异步的？"></a>为什么setState是一个异步的？</h3><ul>
-<li>当批量操作state的时候可以让DOM渲染的更快，也就是说多个setState在执行的过程中还需要被合并</li>
-</ul>
-<h2 id="this-setState之后React做了哪些操作"><a href="#this-setState之后React做了哪些操作" class="headerlink" title="this.setState之后React做了哪些操作?"></a>this.setState之后React做了哪些操作?</h2><ul>
-<li>shouldComponentUpdate</li>
-<li>componentWillUpdate</li>
-<li>render</li>
-<li>componentDidUpdate</li>
-</ul>
-<h2 id="为什么虚拟dom会提高性能"><a href="#为什么虚拟dom会提高性能" class="headerlink" title="为什么虚拟dom会提高性能"></a>为什么虚拟dom会提高性能</h2><ul>
-<li>虚拟DOM相当于在JS和真实DOM中间加了一个缓存，利用DOM Diff避免了没有必要的dom操作，从而提高性能</li>
-<li>用JavaScript对象结构表示DOM树的结构</li>
-<li>然后用这个树构建一个真正的DOM树，插到文档当中当状态变更的时候，重新构造一棵树的对象树</li>
 </ul>
 ]]></content>
       <tags>
