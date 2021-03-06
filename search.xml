@@ -147,6 +147,96 @@
       </tags>
   </entry>
   <entry>
+    <title>JS-回流和重绘</title>
+    <url>/2021/03/06/JS-%E5%9B%9E%E6%B5%81%E5%92%8C%E9%87%8D%E7%BB%98/</url>
+    <content><![CDATA[<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/68f19f1bfbd443af9b67cc0ddd5ccc28~tplv-k3u1fbpfcp-watermark.image"></p>
+<h2 id="浏览器渲染过程"><a href="#浏览器渲染过程" class="headerlink" title="浏览器渲染过程"></a>浏览器渲染过程</h2><ol>
+<li>解析HTML，生成<code>DOM</code>树</li>
+<li>解析CSS，生成<code>CSS规则树（CSS Rule Tree）</code></li>
+<li>将<code>DOM Tree</code>和<code>CSS Rule Tree</code>相结合，生成<strong>渲染树</strong>（<code>Render Tree</code>）</li>
+<li>从根结点开始，计算每一个元素的大小、位置，给出每个节点所应该出现的屏幕精确坐标，从而得到基于渲染树的<strong>布局渲染树</strong>（<code>Layout of the render tree</code>）</li>
+<li>绘制渲染树，将每个节点用<code>UI渲染引擎</code>绘制，从而将整棵树绘制到页面上，这个步骤叫<strong>绘制渲染树</strong>（<code>Painting the render tree</code>）</li>
+</ol>
+<h2 id="重绘"><a href="#重绘" class="headerlink" title="重绘"></a>重绘</h2><h3 id="什么是重绘"><a href="#什么是重绘" class="headerlink" title="什么是重绘"></a>什么是重绘</h3><p><strong>重绘（repaint）</strong>：当元素的样式改变不影响布局时，浏览器将使用重绘对元素进行更新，此时由于只需要UI层面的重新像素绘制，因此损耗较少</p>
+<blockquote>
+<p>在浏览器渲染过程中，对应浏览器渲染过程5，也就是每次发生重绘，我们都会重新绘制渲染树，然后进行展示</p>
+</blockquote>
+<h3 id="如何触发重绘"><a href="#如何触发重绘" class="headerlink" title="如何触发重绘"></a>如何触发重绘</h3><ol>
+<li>修改背景色、颜色（background、color）</li>
+<li>设置可见度（visibility）</li>
+<li>设置背景图（background-image）</li>
+<li>……</li>
+</ol>
+<h2 id="回流"><a href="#回流" class="headerlink" title="回流"></a>回流</h2><h3 id="什么是回流"><a href="#什么是回流" class="headerlink" title="什么是回流"></a>什么是回流</h3><p><strong>回流（reflow）</strong>：又叫重排（<code>layout</code>）。当元素的尺寸、结构或者触发某些属性时，浏览器会重新渲染页面，称为回流</p>
+<blockquote>
+<p>此时浏览器需要重新经过计算，计算后还需要重新页面布局，然后进行绘制渲染，因此是比较重的操作</p>
+</blockquote>
+<h3 id="如何触发回流"><a href="#如何触发回流" class="headerlink" title="如何触发回流"></a>如何触发回流</h3><ol>
+<li>添加删除DOM元素</li>
+<li>改变边框、边距、宽高（border、margin、padding、width、height）</li>
+<li>浏览器改变窗口（resize）</li>
+<li>……</li>
+</ol>
+<h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><blockquote>
+<p>回流必定会引发重绘，重绘不一定会引发回流</p>
+</blockquote>
+<p><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/45f492c6ac9445f796e3d10c36629896~tplv-k3u1fbpfcp-watermark.image"></p>
+<p>看图理解：回流动了Layout，触发了Render Tree进行重新渲染，所以后面还会Painting。</p>
+<p>而重绘后面直接Display，不会触发回流</p>
+<p>现在很多浏览器会做优化操作：<br>    浏览器会维护1个队列，把所有会引起回流、重绘的操作放入这个队列，等队列中的操作到了一定的数量或者到了一定的间隔时间，浏览器就会处理队列，进行一个批处理。这样就会让多次的回流、重绘变成一次回流重绘</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> s = <span class="built_in">document</span>.body.style;</span><br><span class="line">s.padding = <span class="string">&quot;2px&quot;</span>;</span><br><span class="line">s.border = <span class="string">&quot;1px solid red&quot;</span>;</span><br><span class="line">s.color = <span class="string">&quot;blue&quot;</span>;</span><br><span class="line">s.backgroundColor = <span class="string">&quot;#ccc&quot;</span>;</span><br><span class="line">s.fontSize = <span class="string">&quot;14px&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">document</span>.body.appendChild(<span class="built_in">document</span>.createTextNode(<span class="string">&#x27;abc!&#x27;</span>));</span><br></pre></td></tr></table></figure>
+
+<p>上面这段代码触发回流<code>4</code>次，触发重绘<code>6</code>次</p>
+<blockquote>
+<p>JS是单线程的，JS解析的时候渲染引擎是停止工作的</p>
+</blockquote>
+<p>所以综上所述，应该如何减少回流和重绘？？</p>
+<ol>
+<li>CSS使用<code>visibility</code>替换<code>display</code></li>
+<li>CSS避免<code>table</code>布局，对于<code>Render Tree</code>的计算通常只需要遍历一次就可以完成，但是<code>table</code>布局需要计算多次，通常要花3倍等同于元素的时间，因此要避免</li>
+<li>JS避免频繁做<code>width</code>、<code>height</code>等会触发回流的操作</li>
+<li>JS操作DOM的时候，如果是添加DOM节点，可以将所有节点都在JS中操作完毕，在进行渲染（一次性）</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>JavaScript</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JavaScript同步异步</title>
+    <url>/2021/03/05/JavaScript%E5%90%8C%E6%AD%A5%E5%BC%82%E6%AD%A5/</url>
+    <content><![CDATA[<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>在编写Js程序的时候，毫无疑问的就会遇到发送http请求、读取数据库数据、用户点击按钮… 它们都有一个相同点就是都是耗时操作，也有不耗时操作，它们都在等待着被执行。</p>
+<p>只有当当前任务完成，才回去继续执行下一个任务，这也是程序能够正常运行的根本所在，如果所有的任务都在同一时刻一起执行，那么处理器到底应该先执行哪一个呢？况且要执行的任务之间大多还存在着某种不可描述的关系，比如后面一个任务需要先获取到前面一个任务的执行结果才能够继续执行，否则就可能直接报错了。</p>
+<h3 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h3><blockquote>
+<p>比如一百个人在排队上厕所，但是厕所只有两个坑位，这时候人们又不愿意去找别的WC，那么只能够等前面的人出来后面的人进去，这样循环往复。</p>
+</blockquote>
+<p>同步要求多个任务必须排队等待被处理器执行，只有等前一个任务执行完成了，后面的任务才能够开始执行，也就是必须按照先后顺序来。</p>
+<h3 id="异步"><a href="#异步" class="headerlink" title="异步"></a>异步</h3><blockquote>
+<p>还是一百个人上厕所，当快到你们的时候你前面俩个大哥在旁边抽着烟没注意到自己了，这个时候你就先上去了，可能等你出来了他们也还在抽烟…</p>
+</blockquote>
+<p>异步要求有多个任务需要被执行时，谁快就先执行谁，可以不按照顺序来。</p>
+<h2 id="同步-1"><a href="#同步-1" class="headerlink" title="同步"></a>同步</h2><p>Javascript是<strong>单线程语言</strong>，浏览器中负责解释和执行Javascript代码的只是一个线程（单线程），也就是说同一时刻，同一个Javascript引擎只能够执行一个任务。在程序运行的时候，所有的任务都在Javascript的主线程上排队执行。当一个任务被执行的时候，它就会被推入调用栈，执行完毕后，又被推出调用栈。</p>
+<p>想要理解什么是主线程，我们先要搞懂什么是<strong>执行环境</strong>和<strong>调用栈</strong></p>
+<ul>
+<li><p>执行上下文<br>执行上下文指的是执行JavaScript代码的环境，它是一个抽象的概念，就像我们每个人都活在时间的长河中，但是时间却看不见摸不着。 只要有代码在JavaScript中运行，它就一定是在执行上下文中运行。函数的代码在函数的执行上下文内执行，而全局环境中的代码则在全局执行上下文内执行，而且每个函数都会创建属于自己的执行上下文</p>
+</li>
+<li><p>调用栈<br>调用栈顾名思义是一个栈，是一种数据结构。它的作用就是存储代码运行时的执行上下文。</p>
+</li>
+</ul>
+<p>Javascript跟C语言类似，代码都是一行一行执行的。当上面的代码开始执行之前，Javascript引擎会先创建调用栈，然后创建一个全局执行上下文（main主线程），接着代码开始执行。</p>
+<h2 id="异步-1"><a href="#异步-1" class="headerlink" title="异步"></a>异步</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f1</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">2</span>)</span><br><span class="line">  &#125;, <span class="number">2000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f3</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">3</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">f1()</span><br><span class="line">f2()</span><br><span class="line">f3()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1, 3, 2</span></span><br></pre></td></tr></table></figure>
+
+<p>这里因为f2是一个耗时操作，需要耗费2s才能够运行完毕，所以这就触发了Javascript的异步执行机制。</p>
+<p><strong>回调函数</strong><br>如果我们就是不想输出132而是123呢，其实可以通过回调函数来解决这个问题</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f1</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f2</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">2</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 这就是 f3()</span></span><br><span class="line">    callback()</span><br><span class="line">  &#125;, <span class="number">2000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f3</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">3</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">f1()</span><br><span class="line">f2(f3)</span><br></pre></td></tr></table></figure>
+
+<p>将f3作为参数传入f2，f2在执行完耗时操作之后，再来调用我们传入的f3，这样就保证了我们所要求的代码执行顺序，<br>回调函数是Javascript中的一种异步编程方式。</p>
+]]></content>
+      <tags>
+        <tag>frontend</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>React总结</title>
     <url>/2021/03/05/React%E6%80%BB%E7%BB%93/</url>
     <content><![CDATA[<h2 id="React相比原生的好处"><a href="#React相比原生的好处" class="headerlink" title="React相比原生的好处"></a>React相比原生的好处</h2><ul>
@@ -305,96 +395,6 @@
 <li>合并操作，调用component的setState方法的时候，React将其标记为dirty。到每一个事件循环结束，React检查所有标记dirty的component重新绘制</li>
 <li>选择性子树渲染。开发人员可以重写shouldComponentUpdate提高Diff的性能</li>
 </ul>
-]]></content>
-      <tags>
-        <tag>frontend</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JS-回流和重绘</title>
-    <url>/2021/03/06/JS-%E5%9B%9E%E6%B5%81%E5%92%8C%E9%87%8D%E7%BB%98/</url>
-    <content><![CDATA[<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/68f19f1bfbd443af9b67cc0ddd5ccc28~tplv-k3u1fbpfcp-watermark.image"></p>
-<h2 id="浏览器渲染过程"><a href="#浏览器渲染过程" class="headerlink" title="浏览器渲染过程"></a>浏览器渲染过程</h2><ol>
-<li>解析HTML，生成<code>DOM</code>树</li>
-<li>解析CSS，生成<code>CSS规则树（CSS Rule Tree）</code></li>
-<li>将<code>DOM Tree</code>和<code>CSS Rule Tree</code>相结合，生成<strong>渲染树</strong>（<code>Render Tree</code>）</li>
-<li>从根结点开始，计算每一个元素的大小、位置，给出每个节点所应该出现的屏幕精确坐标，从而得到基于渲染树的<strong>布局渲染树</strong>（<code>Layout of the render tree</code>）</li>
-<li>绘制渲染树，将每个节点用<code>UI渲染引擎</code>绘制，从而将整棵树绘制到页面上，这个步骤叫<strong>绘制渲染树</strong>（<code>Painting the render tree</code>）</li>
-</ol>
-<h2 id="重绘"><a href="#重绘" class="headerlink" title="重绘"></a>重绘</h2><h3 id="什么是重绘"><a href="#什么是重绘" class="headerlink" title="什么是重绘"></a>什么是重绘</h3><p><strong>重绘（repaint）</strong>：当元素的样式改变不影响布局时，浏览器将使用重绘对元素进行更新，此时由于只需要UI层面的重新像素绘制，因此损耗较少</p>
-<blockquote>
-<p>在浏览器渲染过程中，对应浏览器渲染过程5，也就是每次发生重绘，我们都会重新绘制渲染树，然后进行展示</p>
-</blockquote>
-<h3 id="如何触发重绘"><a href="#如何触发重绘" class="headerlink" title="如何触发重绘"></a>如何触发重绘</h3><ol>
-<li>修改背景色、颜色（background、color）</li>
-<li>设置可见度（visibility）</li>
-<li>设置背景图（background-image）</li>
-<li>……</li>
-</ol>
-<h2 id="回流"><a href="#回流" class="headerlink" title="回流"></a>回流</h2><h3 id="什么是回流"><a href="#什么是回流" class="headerlink" title="什么是回流"></a>什么是回流</h3><p><strong>回流（reflow）</strong>：又叫重排（<code>layout</code>）。当元素的尺寸、结构或者触发某些属性时，浏览器会重新渲染页面，称为回流</p>
-<blockquote>
-<p>此时浏览器需要重新经过计算，计算后还需要重新页面布局，然后进行绘制渲染，因此是比较重的操作</p>
-</blockquote>
-<h3 id="如何触发回流"><a href="#如何触发回流" class="headerlink" title="如何触发回流"></a>如何触发回流</h3><ol>
-<li>添加删除DOM元素</li>
-<li>改变边框、边距、宽高（border、margin、padding、width、height）</li>
-<li>浏览器改变窗口（resize）</li>
-<li>……</li>
-</ol>
-<h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><blockquote>
-<p>回流必定会引发重绘，重绘不一定会引发回流</p>
-</blockquote>
-<p><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/45f492c6ac9445f796e3d10c36629896~tplv-k3u1fbpfcp-watermark.image"></p>
-<p>看图理解：回流动了Layout，触发了Render Tree进行重新渲染，所以后面还会Painting。</p>
-<p>而重绘后面直接Display，不会触发回流</p>
-<p>现在很多浏览器会做优化操作：<br>    浏览器会维护1个队列，把所有会引起回流、重绘的操作放入这个队列，等队列中的操作到了一定的数量或者到了一定的间隔时间，浏览器就会处理队列，进行一个批处理。这样就会让多次的回流、重绘变成一次回流重绘</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> s = <span class="built_in">document</span>.body.style;</span><br><span class="line">s.padding = <span class="string">&quot;2px&quot;</span>;</span><br><span class="line">s.border = <span class="string">&quot;1px solid red&quot;</span>;</span><br><span class="line">s.color = <span class="string">&quot;blue&quot;</span>;</span><br><span class="line">s.backgroundColor = <span class="string">&quot;#ccc&quot;</span>;</span><br><span class="line">s.fontSize = <span class="string">&quot;14px&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">document</span>.body.appendChild(<span class="built_in">document</span>.createTextNode(<span class="string">&#x27;abc!&#x27;</span>));</span><br></pre></td></tr></table></figure>
-
-<p>上面这段代码触发回流<code>4</code>次，触发重绘<code>6</code>次</p>
-<blockquote>
-<p>JS是单线程的，JS解析的时候渲染引擎是停止工作的</p>
-</blockquote>
-<p>所以综上所述，应该如何减少回流和重绘？？</p>
-<ol>
-<li>CSS使用<code>visibility</code>替换<code>display</code></li>
-<li>CSS避免<code>table</code>布局，对于<code>Render Tree</code>的计算通常只需要遍历一次就可以完成，但是<code>table</code>布局需要计算多次，通常要花3倍等同于元素的时间，因此要避免</li>
-<li>JS避免频繁做<code>width</code>、<code>height</code>等会触发回流的操作</li>
-<li>JS操作DOM的时候，如果是添加DOM节点，可以将所有节点都在JS中操作完毕，在进行渲染（一次性）</li>
-</ol>
-]]></content>
-      <tags>
-        <tag>JavaScript</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JavaScript同步异步</title>
-    <url>/2021/03/05/JavaScript%E5%90%8C%E6%AD%A5%E5%BC%82%E6%AD%A5/</url>
-    <content><![CDATA[<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>在编写Js程序的时候，毫无疑问的就会遇到发送http请求、读取数据库数据、用户点击按钮… 它们都有一个相同点就是都是耗时操作，也有不耗时操作，它们都在等待着被执行。</p>
-<p>只有当当前任务完成，才回去继续执行下一个任务，这也是程序能够正常运行的根本所在，如果所有的任务都在同一时刻一起执行，那么处理器到底应该先执行哪一个呢？况且要执行的任务之间大多还存在着某种不可描述的关系，比如后面一个任务需要先获取到前面一个任务的执行结果才能够继续执行，否则就可能直接报错了。</p>
-<h3 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h3><blockquote>
-<p>比如一百个人在排队上厕所，但是厕所只有两个坑位，这时候人们又不愿意去找别的WC，那么只能够等前面的人出来后面的人进去，这样循环往复。</p>
-</blockquote>
-<p>同步要求多个任务必须排队等待被处理器执行，只有等前一个任务执行完成了，后面的任务才能够开始执行，也就是必须按照先后顺序来。</p>
-<h3 id="异步"><a href="#异步" class="headerlink" title="异步"></a>异步</h3><blockquote>
-<p>还是一百个人上厕所，当快到你们的时候你前面俩个大哥在旁边抽着烟没注意到自己了，这个时候你就先上去了，可能等你出来了他们也还在抽烟…</p>
-</blockquote>
-<p>异步要求有多个任务需要被执行时，谁快就先执行谁，可以不按照顺序来。</p>
-<h2 id="同步-1"><a href="#同步-1" class="headerlink" title="同步"></a>同步</h2><p>Javascript是<strong>单线程语言</strong>，浏览器中负责解释和执行Javascript代码的只是一个线程（单线程），也就是说同一时刻，同一个Javascript引擎只能够执行一个任务。在程序运行的时候，所有的任务都在Javascript的主线程上排队执行。当一个任务被执行的时候，它就会被推入调用栈，执行完毕后，又被推出调用栈。</p>
-<p>想要理解什么是主线程，我们先要搞懂什么是<strong>执行环境</strong>和<strong>调用栈</strong></p>
-<ul>
-<li><p>执行上下文<br>执行上下文指的是执行JavaScript代码的环境，它是一个抽象的概念，就像我们每个人都活在时间的长河中，但是时间却看不见摸不着。 只要有代码在JavaScript中运行，它就一定是在执行上下文中运行。函数的代码在函数的执行上下文内执行，而全局环境中的代码则在全局执行上下文内执行，而且每个函数都会创建属于自己的执行上下文</p>
-</li>
-<li><p>调用栈<br>调用栈顾名思义是一个栈，是一种数据结构。它的作用就是存储代码运行时的执行上下文。</p>
-</li>
-</ul>
-<p>Javascript跟C语言类似，代码都是一行一行执行的。当上面的代码开始执行之前，Javascript引擎会先创建调用栈，然后创建一个全局执行上下文（main主线程），接着代码开始执行。</p>
-<h2 id="异步-1"><a href="#异步-1" class="headerlink" title="异步"></a>异步</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f1</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">2</span>)</span><br><span class="line">  &#125;, <span class="number">2000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f3</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">3</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">f1()</span><br><span class="line">f2()</span><br><span class="line">f3()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1, 3, 2</span></span><br></pre></td></tr></table></figure>
-
-<p>这里因为f2是一个耗时操作，需要耗费2s才能够运行完毕，所以这就触发了Javascript的异步执行机制。</p>
-<p><strong>回调函数</strong><br>如果我们就是不想输出132而是123呢，其实可以通过回调函数来解决这个问题</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f1</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f2</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">2</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 这就是 f3()</span></span><br><span class="line">    callback()</span><br><span class="line">  &#125;, <span class="number">2000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">f3</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">3</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">f1()</span><br><span class="line">f2(f3)</span><br></pre></td></tr></table></figure>
-
-<p>将f3作为参数传入f2，f2在执行完耗时操作之后，再来调用我们传入的f3，这样就保证了我们所要求的代码执行顺序，<br>回调函数是Javascript中的一种异步编程方式。</p>
 ]]></content>
       <tags>
         <tag>frontend</tag>
