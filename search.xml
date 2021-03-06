@@ -1,6 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>JS-回流和重绘</title>
+    <url>/2021/03/06/JS-%E5%9B%9E%E6%B5%81%E5%92%8C%E9%87%8D%E7%BB%98/</url>
+    <content><![CDATA[<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/68f19f1bfbd443af9b67cc0ddd5ccc28~tplv-k3u1fbpfcp-watermark.image"></p>
+<h2 id="浏览器渲染过程"><a href="#浏览器渲染过程" class="headerlink" title="浏览器渲染过程"></a>浏览器渲染过程</h2><ol>
+<li>解析HTML，生成<code>DOM</code>树</li>
+<li>解析CSS，生成<code>CSS规则树（CSS Rule Tree）</code></li>
+<li>将<code>DOM Tree</code>和<code>CSS Rule Tree</code>相结合，生成<strong>渲染树</strong>（<code>Render Tree</code>）</li>
+<li>从根结点开始，计算每一个元素的大小、位置，给出每个节点所应该出现的屏幕精确坐标，从而得到基于渲染树的<strong>布局渲染树</strong>（<code>Layout of the render tree</code>）</li>
+<li>绘制渲染树，将每个节点用<code>UI渲染引擎</code>绘制，从而将整棵树绘制到页面上，这个步骤叫<strong>绘制渲染树</strong>（<code>Painting the render tree</code>）</li>
+</ol>
+<h2 id="重绘"><a href="#重绘" class="headerlink" title="重绘"></a>重绘</h2><h3 id="什么是重绘"><a href="#什么是重绘" class="headerlink" title="什么是重绘"></a>什么是重绘</h3><p><strong>重绘（repaint）</strong>：当元素的样式改变不影响布局时，浏览器将使用重绘对元素进行更新，此时由于只需要UI层面的重新像素绘制，因此损耗较少</p>
+<blockquote>
+<p>在浏览器渲染过程中，对应浏览器渲染过程5，也就是每次发生重绘，我们都会重新绘制渲染树，然后进行展示</p>
+</blockquote>
+<h3 id="如何触发重绘"><a href="#如何触发重绘" class="headerlink" title="如何触发重绘"></a>如何触发重绘</h3><ol>
+<li>修改背景色、颜色（background、color）</li>
+<li>设置可见度（visibility）</li>
+<li>设置背景图（background-image）</li>
+<li>……</li>
+</ol>
+<h2 id="回流"><a href="#回流" class="headerlink" title="回流"></a>回流</h2><h3 id="什么是回流"><a href="#什么是回流" class="headerlink" title="什么是回流"></a>什么是回流</h3><p><strong>回流（reflow）</strong>：又叫重排（<code>layout</code>）。当元素的尺寸、结构或者触发某些属性时，浏览器会重新渲染页面，称为回流</p>
+<blockquote>
+<p>此时浏览器需要重新经过计算，计算后还需要重新页面布局，然后进行绘制渲染，因此是比较重的操作</p>
+</blockquote>
+<h3 id="如何触发回流"><a href="#如何触发回流" class="headerlink" title="如何触发回流"></a>如何触发回流</h3><ol>
+<li>添加删除DOM元素</li>
+<li>改变边框、边距、宽高（border、margin、padding、width、height）</li>
+<li>浏览器改变窗口（resize）</li>
+<li>……</li>
+</ol>
+<h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><blockquote>
+<p>回流必定会引发重绘，重绘不一定会引发回流</p>
+</blockquote>
+<p><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/45f492c6ac9445f796e3d10c36629896~tplv-k3u1fbpfcp-watermark.image"></p>
+<p>看图理解：回流动了Layout，触发了Render Tree进行重新渲染，所以后面还会Painting。</p>
+<p>而重绘后面直接Display，不会触发回流</p>
+<p>现在很多浏览器会做优化操作：<br>    浏览器会维护1个队列，把所有会引起回流、重绘的操作放入这个队列，等队列中的操作到了一定的数量或者到了一定的间隔时间，浏览器就会处理队列，进行一个批处理。这样就会让多次的回流、重绘变成一次回流重绘</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> s = <span class="built_in">document</span>.body.style;</span><br><span class="line">s.padding = <span class="string">&quot;2px&quot;</span>;</span><br><span class="line">s.border = <span class="string">&quot;1px solid red&quot;</span>;</span><br><span class="line">s.color = <span class="string">&quot;blue&quot;</span>;</span><br><span class="line">s.backgroundColor = <span class="string">&quot;#ccc&quot;</span>;</span><br><span class="line">s.fontSize = <span class="string">&quot;14px&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">document</span>.body.appendChild(<span class="built_in">document</span>.createTextNode(<span class="string">&#x27;abc!&#x27;</span>));</span><br></pre></td></tr></table></figure>
+
+<p>上面这段代码触发回流<code>4</code>次，触发重绘<code>6</code>次</p>
+<blockquote>
+<p>JS是单线程的，JS解析的时候渲染引擎是停止工作的</p>
+</blockquote>
+<p>所以综上所述，应该如何减少回流和重绘？？</p>
+<ol>
+<li>CSS使用<code>visibility</code>替换<code>display</code></li>
+<li>CSS避免<code>table</code>布局，对于<code>Render Tree</code>的计算通常只需要遍历一次就可以完成，但是<code>table</code>布局需要计算多次，通常要花3倍等同于元素的时间，因此要避免</li>
+<li>JS避免频繁做<code>width</code>、<code>height</code>等会触发回流的操作</li>
+<li>JS操作DOM的时候，如果是添加DOM节点，可以将所有节点都在JS中操作完毕，在进行渲染（一次性）</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>JavaScript</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>HTTP/HTTPS</title>
     <url>/2021/03/05/HTTP-HTTPS/</url>
     <content><![CDATA[<h2 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h2><p>Web使用一种名为<code>HTTP</code>(HyperText Transfer Protocol, 超文本传输协议)的协议作为规范，完成从客户端到服务器的一系列运作流程。而协议是指规则的约定。可以说，Web是建立在HTTP协议上通信的。</p>
@@ -144,62 +200,6 @@
 ]]></content>
       <tags>
         <tag>frontend</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JS-回流和重绘</title>
-    <url>/2021/03/06/JS-%E5%9B%9E%E6%B5%81%E5%92%8C%E9%87%8D%E7%BB%98/</url>
-    <content><![CDATA[<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/68f19f1bfbd443af9b67cc0ddd5ccc28~tplv-k3u1fbpfcp-watermark.image"></p>
-<h2 id="浏览器渲染过程"><a href="#浏览器渲染过程" class="headerlink" title="浏览器渲染过程"></a>浏览器渲染过程</h2><ol>
-<li>解析HTML，生成<code>DOM</code>树</li>
-<li>解析CSS，生成<code>CSS规则树（CSS Rule Tree）</code></li>
-<li>将<code>DOM Tree</code>和<code>CSS Rule Tree</code>相结合，生成<strong>渲染树</strong>（<code>Render Tree</code>）</li>
-<li>从根结点开始，计算每一个元素的大小、位置，给出每个节点所应该出现的屏幕精确坐标，从而得到基于渲染树的<strong>布局渲染树</strong>（<code>Layout of the render tree</code>）</li>
-<li>绘制渲染树，将每个节点用<code>UI渲染引擎</code>绘制，从而将整棵树绘制到页面上，这个步骤叫<strong>绘制渲染树</strong>（<code>Painting the render tree</code>）</li>
-</ol>
-<h2 id="重绘"><a href="#重绘" class="headerlink" title="重绘"></a>重绘</h2><h3 id="什么是重绘"><a href="#什么是重绘" class="headerlink" title="什么是重绘"></a>什么是重绘</h3><p><strong>重绘（repaint）</strong>：当元素的样式改变不影响布局时，浏览器将使用重绘对元素进行更新，此时由于只需要UI层面的重新像素绘制，因此损耗较少</p>
-<blockquote>
-<p>在浏览器渲染过程中，对应浏览器渲染过程5，也就是每次发生重绘，我们都会重新绘制渲染树，然后进行展示</p>
-</blockquote>
-<h3 id="如何触发重绘"><a href="#如何触发重绘" class="headerlink" title="如何触发重绘"></a>如何触发重绘</h3><ol>
-<li>修改背景色、颜色（background、color）</li>
-<li>设置可见度（visibility）</li>
-<li>设置背景图（background-image）</li>
-<li>……</li>
-</ol>
-<h2 id="回流"><a href="#回流" class="headerlink" title="回流"></a>回流</h2><h3 id="什么是回流"><a href="#什么是回流" class="headerlink" title="什么是回流"></a>什么是回流</h3><p><strong>回流（reflow）</strong>：又叫重排（<code>layout</code>）。当元素的尺寸、结构或者触发某些属性时，浏览器会重新渲染页面，称为回流</p>
-<blockquote>
-<p>此时浏览器需要重新经过计算，计算后还需要重新页面布局，然后进行绘制渲染，因此是比较重的操作</p>
-</blockquote>
-<h3 id="如何触发回流"><a href="#如何触发回流" class="headerlink" title="如何触发回流"></a>如何触发回流</h3><ol>
-<li>添加删除DOM元素</li>
-<li>改变边框、边距、宽高（border、margin、padding、width、height）</li>
-<li>浏览器改变窗口（resize）</li>
-<li>……</li>
-</ol>
-<h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><blockquote>
-<p>回流必定会引发重绘，重绘不一定会引发回流</p>
-</blockquote>
-<p><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/45f492c6ac9445f796e3d10c36629896~tplv-k3u1fbpfcp-watermark.image"></p>
-<p>看图理解：回流动了Layout，触发了Render Tree进行重新渲染，所以后面还会Painting。</p>
-<p>而重绘后面直接Display，不会触发回流</p>
-<p>现在很多浏览器会做优化操作：<br>    浏览器会维护1个队列，把所有会引起回流、重绘的操作放入这个队列，等队列中的操作到了一定的数量或者到了一定的间隔时间，浏览器就会处理队列，进行一个批处理。这样就会让多次的回流、重绘变成一次回流重绘</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> s = <span class="built_in">document</span>.body.style;</span><br><span class="line">s.padding = <span class="string">&quot;2px&quot;</span>;</span><br><span class="line">s.border = <span class="string">&quot;1px solid red&quot;</span>;</span><br><span class="line">s.color = <span class="string">&quot;blue&quot;</span>;</span><br><span class="line">s.backgroundColor = <span class="string">&quot;#ccc&quot;</span>;</span><br><span class="line">s.fontSize = <span class="string">&quot;14px&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">document</span>.body.appendChild(<span class="built_in">document</span>.createTextNode(<span class="string">&#x27;abc!&#x27;</span>));</span><br></pre></td></tr></table></figure>
-
-<p>上面这段代码触发回流<code>4</code>次，触发重绘<code>6</code>次</p>
-<blockquote>
-<p>JS是单线程的，JS解析的时候渲染引擎是停止工作的</p>
-</blockquote>
-<p>所以综上所述，应该如何减少回流和重绘？？</p>
-<ol>
-<li>CSS使用<code>visibility</code>替换<code>display</code></li>
-<li>CSS避免<code>table</code>布局，对于<code>Render Tree</code>的计算通常只需要遍历一次就可以完成，但是<code>table</code>布局需要计算多次，通常要花3倍等同于元素的时间，因此要避免</li>
-<li>JS避免频繁做<code>width</code>、<code>height</code>等会触发回流的操作</li>
-<li>JS操作DOM的时候，如果是添加DOM节点，可以将所有节点都在JS中操作完毕，在进行渲染（一次性）</li>
-</ol>
-]]></content>
-      <tags>
-        <tag>JavaScript</tag>
       </tags>
   </entry>
   <entry>
