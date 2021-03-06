@@ -345,7 +345,7 @@
       </tags>
   </entry>
   <entry>
-    <title>react面试题</title>
+    <title>react question</title>
     <url>/2021/03/05/react%E9%9D%A2%E8%AF%95%E9%A2%98/</url>
     <content><![CDATA[<h2 id="生命周期中的哪一步应该发起AJAX请求"><a href="#生命周期中的哪一步应该发起AJAX请求" class="headerlink" title="生命周期中的哪一步应该发起AJAX请求"></a>生命周期中的哪一步应该发起AJAX请求</h2><ul>
 <li>应该在componentDidMount函数中执行<ol>
