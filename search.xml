@@ -147,6 +147,126 @@
       </tags>
   </entry>
   <entry>
+    <title>JS-Event Loop</title>
+    <url>/2021/03/06/JS-Event-Loop/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>Event Loop</code>即时间循环，是指浏览器或<code>Node</code>的一种解决<code>JavaScript</code>单线程运行时不会阻塞的一种机制，也就是我们经常使用的异步的原理</p>
+<h2 id="单线程和多线程"><a href="#单线程和多线程" class="headerlink" title="单线程和多线程"></a>单线程和多线程</h2><p>JavaScript是一种单线程语言</p>
+<p>单线程在程序运行时，所走的程序路径按照连续顺序排下来，前面的必须处理好，后面的才会继续执行</p>
+<p>以Chrome浏览器为例，当你打开一个新的Tab页的时候，其实就是创建了一个进程</p>
+<p>一个进程中可以有多个线程，比如渲染线程、JS引擎线程、HTTP请求线程等等</p>
+<p>当你发起一个请求的时候，其实就是创建了一个线程，当请求结束之后，该线程可能就会被销毁</p>
+<ul>
+<li>浏览器内核是怎么样的</li>
+</ul>
+<p>浏览器内核是多线程的，在内核控制下各线程之间相互配合以保持同步，一个浏览器通常由以下常驻线程组成<br>    1. <strong>GUI渲染线程</strong>：解析<code>HTML</code>、<code>CSS</code>等。在JavaScript引擎线程运行脚本期间，GUI渲染线程处于挂起状态，也就是被”冻结”了<br>    2. <strong>JavaScript引擎线程</strong>：负责处理JavaScript脚本<br>    3. <strong>定时触发器线程</strong>：<code>setTimeout</code>、<code>setInterval</code>等。事件触发线程会将计数完毕后的事件加入到任务队列的尾部，等待JS引擎线程执行<br>    4. <strong>事件触发线程</strong>： 负责将准备好的事件交给JS引擎执行<br>    5. <strong>异步<code>http</code>请求线程</strong>：负责执行异步请求之类函数的线程，例如<code>Promise.then()</code>、<code>ajax</code>等</p>
+<ul>
+<li>那JavaScript为什么不设计成多线程？<br>假设有个<code>DOM</code>节点，现在线程<code>A</code>操作它，删除了这个<code>DOM</code></li>
+</ul>
+<p>然后线程<code>B</code>有操作了它，修改了<code>DOM</code>中的某一个部分</p>
+<p>那么问题就来了，到底该听谁的呢？？</p>
+<p>所以就干脆设计成了单线程的，老老实实挨个执行下去</p>
+<ul>
+<li>为什么需要异步？？<br>如果调用了某个接口（<code>Ajax</code>），或者还在了某张图片的时候，我们卡住了，这样页面是不是就一直不能渲染出内容了</li>
+</ul>
+<p>因为单线程只能让前面的程序走完，即便这个接口或者图片缓过来了，我们下面还有其他的任务没做呢，这不就直接卡死了嘛</p>
+<p>所以这个时候异步来了</p>
+<p>在涉及某些需要等待的操作的时候，我们就选择让程序继续运行</p>
+<p>等待接口或者图片内容返回过来之后，就通知程序我接收到内容了，可以继续调用了</p>
+<h2 id="Event-Loop"><a href="#Event-Loop" class="headerlink" title="Event Loop"></a>Event Loop</h2><ul>
+<li>为什么会有<code>Event Loop</code><br>因为JavaScript线程一次只能做一件事情，如果碰到了一些需要等到的地方（setTimeout等），那就直接原地爆炸啊</li>
+</ul>
+<p>所以这时候JavaScript为了协调事件、用户交互、脚本、渲染、网络等，就搞出来了一个事件循环（Event Loop）</p>
+<ul>
+<li>什么是<code>Event Loop</code><br>JavaScript从script开始读取，然后不断循环，从”任务队列”中读取执行事件的过程，就是事件循环（Event Loop）</li>
+</ul>
+<h3 id="Event-Loop执行过程"><a href="#Event-Loop执行过程" class="headerlink" title="Event Loop执行过程"></a>Event Loop执行过程</h3><ol>
+<li>一开始整个脚本script作为一个宏任务执行</li>
+<li>执行过程中，同步代码直接执行，宏任务进入宏任务队列，微任务进入微任务队列</li>
+<li>当前宏任务执行完出兑，检查微任务队列，有的话就依次执行，直到全部执行完毕</li>
+<li>执行浏览器UI线程的渲染工作</li>
+<li>检查是否有Web Worker任务，有的话就执行</li>
+<li>执行完本轮的宏任务，回到步骤2，依次循环，直到宏任务和微任务队列为空</li>
+</ol>
+<blockquote>
+<p>Web Worker是运行在后台的JS，独立于其它脚本，不会影响页面的性能</p>
+</blockquote>
+<p>宏任务队列可以有多个，但是微任务队列只有一个</p>
+<p>宏任务包括</p>
+<ul>
+<li>script</li>
+<li>setTimeout</li>
+<li>setInterval</li>
+<li>setImmediate</li>
+<li>I/O</li>
+<li>UI rendering</li>
+</ul>
+<p>微任务包括</p>
+<ul>
+<li>MutationObserver</li>
+<li>Promise.then()/catch()</li>
+<li>以Promise为基础开发的其它技术，比如fetch API</li>
+<li>V8的垃圾回收过程</li>
+<li>Node独有的process.nextTick</li>
+</ul>
+<h3 id="Web-Worker"><a href="#Web-Worker" class="headerlink" title="Web Worker"></a>Web Worker</h3><p>Web Worker为Web内容在后台线程中运行脚本提供了一种简单的方法</p>
+<p>如我们所知，JavaScript一直是属于单线程环境，我们无法同时运行两个JavaScript脚本</p>
+<p>但是试想一下，如果我们可以同时运行两个（或者多个）JavaScript脚本，一个用来处理UI界面（一直以来的用法），一个来处理一些复杂的计算，那么性能就会更好</p>
+<p>在HTML5的新规范中，实现了Web Worker来引入JavaScript的”多线程”技术，它的能力让我们可以在页面主运行的JavaScript线程中加载运行另外单独的一个或者多个JavaScript线程</p>
+<blockquote>
+<p>注意：JavaScript本质上还是单线程的，Web Worker只是浏览器（宿主环境）提供的一个得力API</p>
+</blockquote>
+<h3 id="Web-Worker的使用"><a href="#Web-Worker的使用" class="headerlink" title="Web Worker的使用"></a>Web Worker的使用</h3><blockquote>
+<p>index.js</p>
+</blockquote>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(<span class="string">&#x27;index-同步任务&#x27;</span>);</span><br><span class="line"><span class="built_in">Promise</span>.resolve().then(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;index-Promise&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;index-setTimeout&#x27;</span>);</span><br><span class="line">&#125;, <span class="number">1000</span>);</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>index.html</p>
+</blockquote>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">  <span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;本地-同步任务&#x27;</span>);</span><br><span class="line">    <span class="comment">// 微任务之间</span></span><br><span class="line">    <span class="built_in">Promise</span>.resolve().then(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">&#x27;本地-微任务 1&#x27;</span>);</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">const</span> worker1 = <span class="keyword">new</span> Worker(<span class="string">&#x27;./index.js&#x27;</span>);</span><br><span class="line">    <span class="built_in">Promise</span>.resolve().then(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">&#x27;本地-微任务 2&#x27;</span>);</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 宏任务之间</span></span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">&#x27;本地-宏任务 1&#x27;</span>);</span><br><span class="line">    &#125;, <span class="number">1000</span>);</span><br><span class="line">    <span class="keyword">const</span> worker2 = <span class="keyword">new</span> Worker(<span class="string">&#x27;./index.js&#x27;</span>);</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">&#x27;本地-宏任务 2&#x27;</span>);</span><br><span class="line">    &#125;, <span class="number">1000</span>);</span><br><span class="line">  &#125;;</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>打印结果</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">本地-同步任务</span><br><span class="line">本地-微任务 1</span><br><span class="line">本地-微任务 2</span><br><span class="line">index-同步任务</span><br><span class="line">index-Promise</span><br><span class="line">index-同步任务</span><br><span class="line">index-Promise</span><br><span class="line">本地-宏任务 1</span><br><span class="line">本地-宏任务 2</span><br><span class="line">index-setTimeout</span><br><span class="line">index-setTimeout</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8bf05d4da91843169c327e797eb4a2c3~tplv-k3u1fbpfcp-watermark.image"></p>
+<ol>
+<li>先执行script中同步任务</li>
+<li>再执行script中微任务</li>
+<li>然后执行UI线程的渲染工作（这里在代码中没有体现，感兴趣的可以试试添加rAF）</li>
+<li>接着才执行Web Worker里面的内容</li>
+<li>接着就是index.html中的宏任务</li>
+<li>最后才是Web Worker文件中的宏任务</li>
+</ol>
+<p>这个仍然是符合Event Loop流程的</p>
+<h3 id="Node和浏览器"><a href="#Node和浏览器" class="headerlink" title="Node和浏览器"></a>Node和浏览器</h3><p>为什么会有浏览器Event Loop和Node.js Event Loop</p>
+<p>简单来说</p>
+<ul>
+<li>你的页面放到了浏览器去展示，你的数据放到了后台处理（将Node.js看成是PHP、Java等后端语言），这两者能没有区别么</li>
+</ul>
+<p>再仔细一点：</p>
+<ul>
+<li>Node.js： Node.js的Event Loop是基于libuv。libuv已经对Node.js的Event Loop做出了实现</li>
+<li>浏览器： 浏览器的Event Loop是基于HTML5规范的。而HTML5规范中只是定义了浏览器中的Event Loop的模型，具体实现留给了浏览器厂商</li>
+</ul>
+<blockquote>
+<p>libuv是一个多平台支持库，主要用于异步I/O。它最初是为了Node.js开发的，现在luvit、Julia、pyuv等其它框架也在使用它</p>
+</blockquote>
+<p>所以得把两个Event Loop区分开来，它们是不一样的东西</p>
+<h2 id="两个环境Event-Loop对比"><a href="#两个环境Event-Loop对比" class="headerlink" title="两个环境Event Loop对比"></a>两个环境Event Loop对比</h2><ul>
+<li>浏览器环境下，microtask的任务队列是每个microtask执行完之后执行</li>
+</ul>
+<ul>
+<li>Node.js中microtask会在时间循环的各个阶段之间执行，也就是一个阶段执行完毕，就会去执行microtask队列的任务</li>
+</ul>
+<p>面试官问的基本上回答的都是浏览器的时间循环机制，偶尔瞥一嘴Event Loop分为浏览器事件循环和Node事件循环</p>
+]]></content>
+      <tags>
+        <tag>JavaScript</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JS-this</title>
     <url>/2021/03/06/JS-this/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
@@ -322,55 +442,6 @@
       </tags>
   </entry>
   <entry>
-    <title>react question</title>
-    <url>/2021/03/05/react%E9%9D%A2%E8%AF%95%E9%A2%98/</url>
-    <content><![CDATA[<h2 id="生命周期中的哪一步应该发起AJAX请求"><a href="#生命周期中的哪一步应该发起AJAX请求" class="headerlink" title="生命周期中的哪一步应该发起AJAX请求"></a>生命周期中的哪一步应该发起AJAX请求</h2><ul>
-<li>应该在componentDidMount函数中执行<ol>
-<li>React下一代调和算法Fiber会通过开始或停止渲染的方式优化应用性能，其会影响到componentDidWillMount的触发次数。对于componentDidWillMount这个生命周期函数的调用次数会变得不确定，React可能会多次频繁调用componentDidWillMount。如果我们将AJAX请求放到componentDidWillMount函数中，那么显而易见其会被触发多次，自然也就不是一个好的选择</li>
-<li>如果我们将AJAX请求放置在别的函数中，我们并不能保证请求仅在组件挂载完毕之后才会要求相应。如果我们的数据请求在组件挂载之前就完成，并且调用了setState函数将数据添加到组件状态中，对于未挂载的组件则会报错。而在componentDidMount函数中进行AJAX请求就能有效避免这个问题</li>
-</ol>
-</li>
-</ul>
-<h2 id="shouldComponentUpdate的作用是啥以及为什么这么重要"><a href="#shouldComponentUpdate的作用是啥以及为什么这么重要" class="headerlink" title="shouldComponentUpdate的作用是啥以及为什么这么重要"></a>shouldComponentUpdate的作用是啥以及为什么这么重要</h2><ul>
-<li>shouldComponentUpdate允许我们手动判断是否进行组件更新，根据组件的应用场景设置函数的合理返回值能够帮我们避免不必要的更新</li>
-</ul>
-<h2 id="如何告诉React应该编译生产环境版本"><a href="#如何告诉React应该编译生产环境版本" class="headerlink" title="如何告诉React应该编译生产环境版本"></a>如何告诉React应该编译生产环境版本</h2><ul>
-<li>通常情况下会使用webpack的DefinePlugin方法来将NODE_ENV变量值设置为production。编译版本中React会忽略propType验证以及其他的告警信息，同时还会降低代码库的大小，React使用了Uglify插件来移除生产环境下不必要的注释等信息。</li>
-</ul>
-<h2 id="React中keys的作用是什么？"><a href="#React中keys的作用是什么？" class="headerlink" title="React中keys的作用是什么？"></a>React中keys的作用是什么？</h2><ul>
-<li>Keys是React用于追踪哪些列表中元素被修改、被添加或者被移除的辅助标识。<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">render () &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ul&gt;</span><br><span class="line">      &#123;<span class="built_in">this</span>.state.todoItems.map(<span class="function">(<span class="params">&#123;item, key&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">&#123;key&#125;</span>&gt;</span>&#123;item&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">      &#125;)&#125;</span><br><span class="line">    &lt;/ul&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>react利用key来识别组件，它是一种身份标识，相同的key React认为是同一组件，这样后续相同的key对应组件都不会被创建</li>
-<li>有了key属性之后，就可以与组件建立了一种对应关系，react根据key来决定是销毁重新创建组件还是更新组建</li>
-<li>key相同，若组件属性有所变化，则React只更新组件对应的属性；没有变化则不更新</li>
-<li>key值不同，则React先销毁该组件（有状态组件的componentWillUnmount会执行），然后重新创建该组件（有状态组件的constructor和componentWillUnmount都会执行）</li>
-</ul>
-<h2 id="触发多次setState，那么render会执行几次？"><a href="#触发多次setState，那么render会执行几次？" class="headerlink" title="触发多次setState，那么render会执行几次？"></a>触发多次setState，那么render会执行几次？</h2><ul>
-<li>多次执行setState会合并为一次render，因为setState并不会立即改变state的值，而是将其放到任务队列中，最终将多个setState合并，一次性更新页面。</li>
-</ul>
-<p><strong>所以</strong> 我们可以在代码里多次调用setState，每次只需要关注当前修改的字段就可以了</p>
-<h3 id="为什么建议传递给setState的参数是一个callback而不是一个对象？"><a href="#为什么建议传递给setState的参数是一个callback而不是一个对象？" class="headerlink" title="为什么建议传递给setState的参数是一个callback而不是一个对象？"></a>为什么建议传递给setState的参数是一个callback而不是一个对象？</h3><ul>
-<li>因为this.props和this.state的更新可能是异步的，不能依赖它们去计算下一个state</li>
-</ul>
-<h3 id="为什么setState是一个异步的？"><a href="#为什么setState是一个异步的？" class="headerlink" title="为什么setState是一个异步的？"></a>为什么setState是一个异步的？</h3><ul>
-<li>当批量操作state的时候可以让DOM渲染的更快，也就是说多个setState在执行的过程中还需要被合并</li>
-</ul>
-<h2 id="this-setState之后React做了哪些操作"><a href="#this-setState之后React做了哪些操作" class="headerlink" title="this.setState之后React做了哪些操作?"></a>this.setState之后React做了哪些操作?</h2><ul>
-<li>shouldComponentUpdate</li>
-<li>componentWillUpdate</li>
-<li>render</li>
-<li>componentDidUpdate</li>
-</ul>
-<h2 id="为什么虚拟dom会提高性能"><a href="#为什么虚拟dom会提高性能" class="headerlink" title="为什么虚拟dom会提高性能"></a>为什么虚拟dom会提高性能</h2><ul>
-<li>虚拟DOM相当于在JS和真实DOM中间加了一个缓存，利用DOM Diff避免了没有必要的dom操作，从而提高性能</li>
-<li>用JavaScript对象结构表示DOM树的结构</li>
-<li>然后用这个树构建一个真正的DOM树，插到文档当中当状态变更的时候，重新构造一棵树的对象树</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>frontend</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>React总结</title>
     <url>/2021/03/05/React%E6%80%BB%E7%BB%93/</url>
     <content><![CDATA[<h2 id="React相比原生的好处"><a href="#React相比原生的好处" class="headerlink" title="React相比原生的好处"></a>React相比原生的好处</h2><ul>
@@ -528,6 +599,55 @@
 <li>React只会匹配相同class的component(这里面的class指的是组件的名字)</li>
 <li>合并操作，调用component的setState方法的时候，React将其标记为dirty。到每一个事件循环结束，React检查所有标记dirty的component重新绘制</li>
 <li>选择性子树渲染。开发人员可以重写shouldComponentUpdate提高Diff的性能</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>frontend</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>react question</title>
+    <url>/2021/03/05/react%E9%9D%A2%E8%AF%95%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="生命周期中的哪一步应该发起AJAX请求"><a href="#生命周期中的哪一步应该发起AJAX请求" class="headerlink" title="生命周期中的哪一步应该发起AJAX请求"></a>生命周期中的哪一步应该发起AJAX请求</h2><ul>
+<li>应该在componentDidMount函数中执行<ol>
+<li>React下一代调和算法Fiber会通过开始或停止渲染的方式优化应用性能，其会影响到componentDidWillMount的触发次数。对于componentDidWillMount这个生命周期函数的调用次数会变得不确定，React可能会多次频繁调用componentDidWillMount。如果我们将AJAX请求放到componentDidWillMount函数中，那么显而易见其会被触发多次，自然也就不是一个好的选择</li>
+<li>如果我们将AJAX请求放置在别的函数中，我们并不能保证请求仅在组件挂载完毕之后才会要求相应。如果我们的数据请求在组件挂载之前就完成，并且调用了setState函数将数据添加到组件状态中，对于未挂载的组件则会报错。而在componentDidMount函数中进行AJAX请求就能有效避免这个问题</li>
+</ol>
+</li>
+</ul>
+<h2 id="shouldComponentUpdate的作用是啥以及为什么这么重要"><a href="#shouldComponentUpdate的作用是啥以及为什么这么重要" class="headerlink" title="shouldComponentUpdate的作用是啥以及为什么这么重要"></a>shouldComponentUpdate的作用是啥以及为什么这么重要</h2><ul>
+<li>shouldComponentUpdate允许我们手动判断是否进行组件更新，根据组件的应用场景设置函数的合理返回值能够帮我们避免不必要的更新</li>
+</ul>
+<h2 id="如何告诉React应该编译生产环境版本"><a href="#如何告诉React应该编译生产环境版本" class="headerlink" title="如何告诉React应该编译生产环境版本"></a>如何告诉React应该编译生产环境版本</h2><ul>
+<li>通常情况下会使用webpack的DefinePlugin方法来将NODE_ENV变量值设置为production。编译版本中React会忽略propType验证以及其他的告警信息，同时还会降低代码库的大小，React使用了Uglify插件来移除生产环境下不必要的注释等信息。</li>
+</ul>
+<h2 id="React中keys的作用是什么？"><a href="#React中keys的作用是什么？" class="headerlink" title="React中keys的作用是什么？"></a>React中keys的作用是什么？</h2><ul>
+<li>Keys是React用于追踪哪些列表中元素被修改、被添加或者被移除的辅助标识。<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">render () &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ul&gt;</span><br><span class="line">      &#123;<span class="built_in">this</span>.state.todoItems.map(<span class="function">(<span class="params">&#123;item, key&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">&#123;key&#125;</span>&gt;</span>&#123;item&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">      &#125;)&#125;</span><br><span class="line">    &lt;/ul&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>react利用key来识别组件，它是一种身份标识，相同的key React认为是同一组件，这样后续相同的key对应组件都不会被创建</li>
+<li>有了key属性之后，就可以与组件建立了一种对应关系，react根据key来决定是销毁重新创建组件还是更新组建</li>
+<li>key相同，若组件属性有所变化，则React只更新组件对应的属性；没有变化则不更新</li>
+<li>key值不同，则React先销毁该组件（有状态组件的componentWillUnmount会执行），然后重新创建该组件（有状态组件的constructor和componentWillUnmount都会执行）</li>
+</ul>
+<h2 id="触发多次setState，那么render会执行几次？"><a href="#触发多次setState，那么render会执行几次？" class="headerlink" title="触发多次setState，那么render会执行几次？"></a>触发多次setState，那么render会执行几次？</h2><ul>
+<li>多次执行setState会合并为一次render，因为setState并不会立即改变state的值，而是将其放到任务队列中，最终将多个setState合并，一次性更新页面。</li>
+</ul>
+<p><strong>所以</strong> 我们可以在代码里多次调用setState，每次只需要关注当前修改的字段就可以了</p>
+<h3 id="为什么建议传递给setState的参数是一个callback而不是一个对象？"><a href="#为什么建议传递给setState的参数是一个callback而不是一个对象？" class="headerlink" title="为什么建议传递给setState的参数是一个callback而不是一个对象？"></a>为什么建议传递给setState的参数是一个callback而不是一个对象？</h3><ul>
+<li>因为this.props和this.state的更新可能是异步的，不能依赖它们去计算下一个state</li>
+</ul>
+<h3 id="为什么setState是一个异步的？"><a href="#为什么setState是一个异步的？" class="headerlink" title="为什么setState是一个异步的？"></a>为什么setState是一个异步的？</h3><ul>
+<li>当批量操作state的时候可以让DOM渲染的更快，也就是说多个setState在执行的过程中还需要被合并</li>
+</ul>
+<h2 id="this-setState之后React做了哪些操作"><a href="#this-setState之后React做了哪些操作" class="headerlink" title="this.setState之后React做了哪些操作?"></a>this.setState之后React做了哪些操作?</h2><ul>
+<li>shouldComponentUpdate</li>
+<li>componentWillUpdate</li>
+<li>render</li>
+<li>componentDidUpdate</li>
+</ul>
+<h2 id="为什么虚拟dom会提高性能"><a href="#为什么虚拟dom会提高性能" class="headerlink" title="为什么虚拟dom会提高性能"></a>为什么虚拟dom会提高性能</h2><ul>
+<li>虚拟DOM相当于在JS和真实DOM中间加了一个缓存，利用DOM Diff避免了没有必要的dom操作，从而提高性能</li>
+<li>用JavaScript对象结构表示DOM树的结构</li>
+<li>然后用这个树构建一个真正的DOM树，插到文档当中当状态变更的时候，重新构造一棵树的对象树</li>
 </ul>
 ]]></content>
       <tags>
