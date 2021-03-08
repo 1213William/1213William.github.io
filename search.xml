@@ -267,34 +267,6 @@
       </tags>
   </entry>
   <entry>
-    <title>JS-this</title>
-    <url>/2021/03/06/JS-this/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
-<p><code>this</code>永远指向最后调用它的那个对象</p>
-</blockquote>
-<p>牢记：<br>    - 普通函数中<code>this</code>的指向，是<strong>this执行时</strong>的上下文<br>    - 箭头函数中<code>this</code>的指向，是<strong>this定义时</strong>的上下文</p>
-<p><code>作用域链</code>和<code>this</code>是两套不同的系统，它们之间基本没有太多的联系</p>
-<p>this是和执行上下文绑定的，也就是说每个执行上下文都有一个this</p>
-<p>执行上下文分为三种<br>    - 全局执行上下文<br>    - 函数执行上下文<br>    - <code>eval</code>执行上下文</p>
-<blockquote>
-<p>这里是浏览器中的this，和Node中的this是不一样的 </p>
-</blockquote>
-<h2 id="React中this指向"><a href="#React中this指向" class="headerlink" title="React中this指向"></a>React中this指向</h2><h3 id="提前bind绑定this"><a href="#提前bind绑定this" class="headerlink" title="提前bind绑定this"></a>提前bind绑定this</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="title">constructor</span> (<span class="params">props</span>) &#123;</span><br><span class="line">  <span class="built_in">this</span>.handleClick = <span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>);</span><br><span class="line">&#125;</span><br><span class="line">&lt;button onClick=&#123;<span class="built_in">this</span>.handleClick&#125;&gt;btn <span class="number">1</span>&lt;/button&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="调用时bind绑定this"><a href="#调用时bind绑定this" class="headerlink" title="调用时bind绑定this"></a>调用时bind绑定this</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;button onClick=&#123;<span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>)&#125;&gt;btn <span class="number">2</span>&lt;/button&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="返回一个箭头函数"><a href="#返回一个箭头函数" class="headerlink" title="返回一个箭头函数"></a>返回一个箭头函数</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;button onClick=&#123;<span class="function">() =&gt;</span> <span class="built_in">this</span>.handleClick()&#125;&gt;btn <span class="number">3</span>&lt;/button&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="React的this指向解决方案"><a href="#React的this指向解决方案" class="headerlink" title="React的this指向解决方案"></a>React的this指向解决方案</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123; Component &#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">App</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="title">constructor</span> (<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="built_in">super</span>(props);</span><br><span class="line">    <span class="built_in">this</span>.handleClick = <span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  handleClick () &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;2020&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  handleClick2 = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;2021&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  render () &#123;</span><br><span class="line">    <span class="comment">// 四种绑定方法</span></span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;div className=<span class="string">&#x27;App&#x27;</span>&gt;</span><br><span class="line">        &#123;<span class="comment">/* 方法一：通过 constructor 中进行 bind 绑定 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick&#125;&gt;btn <span class="number">1</span>&lt;/button&gt;</span><br><span class="line"></span><br><span class="line">        &#123;<span class="comment">/* 方法二：在里边绑定 this */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>)&#125;&gt;btn <span class="number">2</span>&lt;/button&gt;</span><br><span class="line"></span><br><span class="line">        &#123;<span class="comment">/* 方法三：通过箭头函数返回事件 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="function">() =&gt;</span> <span class="built_in">this</span>.handleClick()&#125;&gt;btn <span class="number">3</span>&lt;/button&gt;</span><br><span class="line">        </span><br><span class="line">        &#123;<span class="comment">/* 方法四：让方法变成箭头函数 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick2&#125;&gt;btn <span class="number">4</span>&lt;/button&gt;</span><br><span class="line">        </span><br><span class="line">        &#123;<span class="comment">/* 额外：直接调用不需要绑定 this */</span>&#125;</span><br><span class="line">        &#123;<span class="built_in">this</span>.handleClick()&#125;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> App;</span><br></pre></td></tr></table></figure>
-
-
-]]></content>
-      <tags>
-        <tag>JavaScript</tag>
-        <tag>React</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>JS-回流和重绘</title>
     <url>/2021/03/06/JS-%E5%9B%9E%E6%B5%81%E5%92%8C%E9%87%8D%E7%BB%98/</url>
     <content><![CDATA[<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/68f19f1bfbd443af9b67cc0ddd5ccc28~tplv-k3u1fbpfcp-watermark.image"></p>
@@ -408,6 +380,34 @@
       </tags>
   </entry>
   <entry>
+    <title>JS-this</title>
+    <url>/2021/03/06/JS-this/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
+<p><code>this</code>永远指向最后调用它的那个对象</p>
+</blockquote>
+<p>牢记：<br>    - 普通函数中<code>this</code>的指向，是<strong>this执行时</strong>的上下文<br>    - 箭头函数中<code>this</code>的指向，是<strong>this定义时</strong>的上下文</p>
+<p><code>作用域链</code>和<code>this</code>是两套不同的系统，它们之间基本没有太多的联系</p>
+<p>this是和执行上下文绑定的，也就是说每个执行上下文都有一个this</p>
+<p>执行上下文分为三种<br>    - 全局执行上下文<br>    - 函数执行上下文<br>    - <code>eval</code>执行上下文</p>
+<blockquote>
+<p>这里是浏览器中的this，和Node中的this是不一样的 </p>
+</blockquote>
+<h2 id="React中this指向"><a href="#React中this指向" class="headerlink" title="React中this指向"></a>React中this指向</h2><h3 id="提前bind绑定this"><a href="#提前bind绑定this" class="headerlink" title="提前bind绑定this"></a>提前bind绑定this</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="title">constructor</span> (<span class="params">props</span>) &#123;</span><br><span class="line">  <span class="built_in">this</span>.handleClick = <span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>);</span><br><span class="line">&#125;</span><br><span class="line">&lt;button onClick=&#123;<span class="built_in">this</span>.handleClick&#125;&gt;btn <span class="number">1</span>&lt;/button&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="调用时bind绑定this"><a href="#调用时bind绑定this" class="headerlink" title="调用时bind绑定this"></a>调用时bind绑定this</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;button onClick=&#123;<span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>)&#125;&gt;btn <span class="number">2</span>&lt;/button&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="返回一个箭头函数"><a href="#返回一个箭头函数" class="headerlink" title="返回一个箭头函数"></a>返回一个箭头函数</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;button onClick=&#123;<span class="function">() =&gt;</span> <span class="built_in">this</span>.handleClick()&#125;&gt;btn <span class="number">3</span>&lt;/button&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="React的this指向解决方案"><a href="#React的this指向解决方案" class="headerlink" title="React的this指向解决方案"></a>React的this指向解决方案</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123; Component &#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">App</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="title">constructor</span> (<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="built_in">super</span>(props);</span><br><span class="line">    <span class="built_in">this</span>.handleClick = <span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  handleClick () &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;2020&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  handleClick2 = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;2021&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  render () &#123;</span><br><span class="line">    <span class="comment">// 四种绑定方法</span></span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;div className=<span class="string">&#x27;App&#x27;</span>&gt;</span><br><span class="line">        &#123;<span class="comment">/* 方法一：通过 constructor 中进行 bind 绑定 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick&#125;&gt;btn <span class="number">1</span>&lt;/button&gt;</span><br><span class="line"></span><br><span class="line">        &#123;<span class="comment">/* 方法二：在里边绑定 this */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>)&#125;&gt;btn <span class="number">2</span>&lt;/button&gt;</span><br><span class="line"></span><br><span class="line">        &#123;<span class="comment">/* 方法三：通过箭头函数返回事件 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="function">() =&gt;</span> <span class="built_in">this</span>.handleClick()&#125;&gt;btn <span class="number">3</span>&lt;/button&gt;</span><br><span class="line">        </span><br><span class="line">        &#123;<span class="comment">/* 方法四：让方法变成箭头函数 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick2&#125;&gt;btn <span class="number">4</span>&lt;/button&gt;</span><br><span class="line">        </span><br><span class="line">        &#123;<span class="comment">/* 额外：直接调用不需要绑定 this */</span>&#125;</span><br><span class="line">        &#123;<span class="built_in">this</span>.handleClick()&#125;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> App;</span><br></pre></td></tr></table></figure>
+
+
+]]></content>
+      <tags>
+        <tag>JavaScript</tag>
+        <tag>React</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JavaScript同步异步</title>
     <url>/2021/03/05/JavaScript%E5%90%8C%E6%AD%A5%E5%BC%82%E6%AD%A5/</url>
     <content><![CDATA[<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>在编写Js程序的时候，毫无疑问的就会遇到发送http请求、读取数据库数据、用户点击按钮… 它们都有一个相同点就是都是耗时操作，也有不耗时操作，它们都在等待着被执行。</p>
@@ -488,6 +488,32 @@
 ]]></content>
       <tags>
         <tag>frontend</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>微信小程序注意点</title>
+    <url>/2021/03/08/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E6%B3%A8%E6%84%8F%E7%82%B9/</url>
+    <content><![CDATA[<h2 id="subPackages分包加载"><a href="#subPackages分包加载" class="headerlink" title="subPackages分包加载"></a>subPackages分包加载</h2><p>因为小程序主包大小不超过2048kb限制，所以使用分包是个不错的选择，总分包大小不超过8Mb，可以添加多个分包，分包加载可以优化小程序首次启动的下载时间，当进入分包页再进行下载，这种按需加载可以把某些数据量大的抽离出来进行分包</p>
+<h2 id="rpx单位"><a href="#rpx单位" class="headerlink" title="rpx单位"></a>rpx单位</h2><p>在做移动端适配的时候最常用的就是使用rem或vw作为单位来进行适配，所以微信小程序提供了rpx单位来进行适配</p>
+<h2 id="授权弹窗"><a href="#授权弹窗" class="headerlink" title="授权弹窗"></a>授权弹窗</h2><p>wx.getUserInfo接口调整，以前可以直接主动调用显示授权弹窗，现在需要使用button按钮点击去引导用户授权</p>
+<h2 id="原生组件z-index"><a href="#原生组件z-index" class="headerlink" title="原生组件z-index"></a>原生组件z-index</h2><p>原生组件的层级是最高的，所以页面中的其它组件无论设置z-index为多少，都无法盖在原生组件上，可以通过cover-view来解决，但某些特定环境如swiper或弹窗中需要显示/隐藏原生组件，需要配合hidden来使用</p>
+<h2 id="伪元素"><a href="#伪元素" class="headerlink" title="伪元素"></a>伪元素</h2><p>小程序的伪元素属性无法在微信开发者工具CSS属性中看到，所以对于某些组件样式无法覆盖时（button的边框或某些线条设置），是因为通过伪元素::after设置的，所以必须使用伪元素来覆盖</p>
+<h2 id="页面栈"><a href="#页面栈" class="headerlink" title="页面栈"></a>页面栈</h2><p>一个页面只能打开5个页面栈，当已经打开了 5个页面之后（现在的限制是10层），后续可能会不能正常打开新页面的情况。wx.navigateTo跳转会保留当前页，wx.redirectTo则不会，所以要避免多层级的交互方式来合理使用跳转方式</p>
+<h2 id="组件化"><a href="#组件化" class="headerlink" title="组件化"></a>组件化</h2><p>template模块与component组件，是小程序中组件化的方式</p>
+<ul>
+<li>区别<ul>
+<li>template模块主要是展示，方法在template的页面中定义</li>
+<li>component组件拥有自己的js文件，整个component组件类似一个page页面</li>
+</ul>
+</li>
+</ul>
+<p>如果只是展示用，建议使用template，组件中涉及比较多的逻辑，建议使用component</p>
+<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><ol>
+<li>开发者工具source断点、console.log打印数据和AppData查看数据</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>微信小程序</tag>
       </tags>
   </entry>
   <entry>
