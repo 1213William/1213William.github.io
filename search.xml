@@ -1,180 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>HTTP/HTTPS</title>
-    <url>/2021/03/05/HTTP-HTTPS/</url>
-    <content><![CDATA[<h2 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h2><p>Web使用一种名为<code>HTTP</code>(HyperText Transfer Protocol, 超文本传输协议)的协议作为规范，完成从客户端到服务器的一系列运作流程。而协议是指规则的约定。可以说，Web是建立在HTTP协议上通信的。</p>
-<p><code>HTTP</code>最初的目的就是为了让研究者共享知识信息，所以它的主要作用就是文档传输，它是一种用于传输文档的协议</p>
-<h3 id="请求方法"><a href="#请求方法" class="headerlink" title="请求方法"></a>请求方法</h3><ul>
-<li><code>GET</code>: 获取资源</li>
-<li><code>HEAD</code>: 获取资源的元信息</li>
-<li><code>POST</code>: 提交/上传 数据</li>
-<li><code>PUT</code>: 修改数据</li>
-<li><code>DELETE</code>: 删除资源（几乎用不到）</li>
-<li><code>CONNECT</code>: 建立连接渠道，用于代理服务器</li>
-<li><code>OPTIONS</code>: 列出可对资源实施请求的方法，用来跨域请求</li>
-<li><code>TRACE</code>: 追踪请求-响应的传输路径</li>
-</ul>
-<h3 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h3><ul>
-<li>优点<ul>
-<li><code>灵活可扩展</code>：主要体现在两个方面。一个是语义上的自由，只规定了基本格式，比如空格分隔单词，换行分割字段，其他的各个部分都还没有严格的语法限制。另一个就是传输形式的多样性，不仅仅是可以传输文本，还可以传输图片、视频等任意数据，非常方便</li>
-<li><code>可靠传输</code>：HTTP基于TCP/IP，因此把这一特性继承了下来。这属于TCP的特性</li>
-<li><code>请求-应答</code>：也就是一发一收、有来有回，当然这个请求方和应答方不单单指客户端和服务器之间，如果某台服务器作为代理来连接后端的服务器，那么这台服务器也会扮演请求方的角色</li>
-<li><code>无状态</code>：这里的状态指的是通信过程中上下文信息，而每次HTTP请求都是独立、无关的，默认不需要保留状态信息</li>
-</ul>
-</li>
-<li>缺点<ul>
-<li><code>无状态</code>： 在需要长连接的场景中，需要保存大量的上下文信息，以免传输大量重复的信息，那么这个时候无状态就成了HTTP的缺点了</li>
-<li><code>明文传输</code>： 协议里的报文（主要指的是头部）不使用二进制数据，而是文本形式</li>
-<li><code>队头阻塞问题</code>： 当HTTP开始长连接的时候，共用一个TCP连接，同一时刻只能处理一个请求，那么当前请求耗时过长的情况下，其它的请求只能处于阻塞状态</li>
-</ul>
-</li>
-</ul>
-<h3 id="GET和POST的区别"><a href="#GET和POST的区别" class="headerlink" title="GET和POST的区别"></a>GET和POST的区别</h3><p><code>GET</code>和<code>POST</code>方法没有实质区别，只是报文格式不同<br><code>GET</code>和<code>POST</code>只是<code>HTTP</code>协议中两种请求方式，而<code>HTTP</code>协议是基于<code>TCP/IP</code>的应用层协议<br>无论是<code>GET</code>还是<code>POST</code>，用的都是同一个传输层协议，所以在传输上是没有区别的</p>
-<ul>
-<li><code>GET</code>获取资源；<code>POST</code>提交/上传 数据</li>
-<li><code>GET</code>请求长度在浏览器中有显示，而<code>POST</code>并没有</li>
-<li><code>GET</code>请求会被浏览器主动保留下来（历史记录）, 而<code>POST</code>默认不会</li>
-</ul>
-<blockquote>
-<p>【误区】GET请求传参长度有限制</p>
-</blockquote>
-<ul>
-<li><p>我们经常说GET请求参数的大小存在限制，而POST请求的参数大小是无限制的。其实这是有问题的。</p>
-</li>
-<li><p>实际上<code>HTTP</code>协议从来没规定<code>GET/POST</code>的请求长度限制是多少</p>
-</li>
-<li><p>对<code>GET</code>请求参数的限制来源于浏览器或者<code>Web</code>服务器，是它们限制了这个长度</p>
-</li>
-<li><p>不同的浏览器和<code>Web</code>服务器，限制的最大长度不一样</p>
-</li>
-</ul>
-<blockquote>
-<p>【误区】POST方法比GET方法安全</p>
-</blockquote>
-<ul>
-<li><p><code>POST</code>比<code>GET</code>安全，是因为数据在地址栏URL看不见</p>
-</li>
-<li><p>从传输的角度来说<code>HTTP</code>在网络上的明文传输，可以通过抓包工具完整获取的</p>
-</li>
-<li><p>如果想要安全，可以使用<code>HTTPS</code></p>
-</li>
-</ul>
-<h3 id="keep-alive"><a href="#keep-alive" class="headerlink" title="keep-alive"></a>keep-alive</h3><p><code>HTTP</code>的<code>keep-alive</code>也称为<code>HTTP</code>的长连接<br>它通过重用一个<code>TCP</code>连接来发送/接收多个<code>HTTP</code>请求，来减少创建/关闭多个TCP连接的开销</p>
-<p>在<code>HTTP/1.0</code>协议中，如果请求头中包含</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Connection: keep-alive</span><br></pre></td></tr></table></figure>
-<p>则代表开启了<code>keep-alive</code>，而服务端的返回保文头中，也会包含相同的内容</p>
-<p>在<code>HTTP/1.1</code>协议中，默认开启<code>keep-alive</code>，除非显式地关闭它：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Connection: close</span><br></pre></td></tr></table></figure>
-
-<p>除此之外还可以设置断开的时间</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Keep-Alive: timeout&#x3D;5, max&#x3D;100</span><br></pre></td></tr></table></figure>
-<p>这个就表示<code>TCP</code>通道可以保持<code>5s</code>，<code>max=100</code>表示这个长连接最多接收<code>100</code>次请求就断开</p>
-<h3 id="HTTP和TCP的区别"><a href="#HTTP和TCP的区别" class="headerlink" title="HTTP和TCP的区别"></a>HTTP和TCP的区别</h3><p>HTTP是应用层协议，定义的是传输数据内容的规范；而TCP是底层通讯协议，定义的是数据传输和连接方式的规范。</p>
-<p>HTTP协议中的数据是利用TCP协议传输的，所以支持HTTP的也一定支持TCP</p>
-<h2 id="HTTP状态码"><a href="#HTTP状态码" class="headerlink" title="HTTP状态码"></a>HTTP状态码</h2><ul>
-<li>HTTP状态码位三位数，被归为五类<ul>
-<li><code>1XX</code>：表示目前是协议处理的中间状态，还需要后续操作</li>
-<li><code>2XX</code>：表示成功状态</li>
-<li><code>3XX</code>：重定向状态，资源位置发生变动，需要重新请求</li>
-<li><code>4XX</code>：请求报文有误</li>
-<li><code>5XX</code>：服务端发生错误</li>
-</ul>
-</li>
-</ul>
-<h3 id="1XX"><a href="#1XX" class="headerlink" title="1XX"></a>1XX</h3><ul>
-<li><code>101 Switching Protocols</code>：在HTTP升级为<code>WebSocket</code>的时候，如果服务器同意变更，就会发送状态码101</li>
-</ul>
-<h3 id="2XX"><a href="#2XX" class="headerlink" title="2XX"></a>2XX</h3><ul>
-<li><code>200 OK</code>：请求成功状态码，响应体中含有数据</li>
-<li><code>204 No Content</code>：含义同200，但是响应报文不含实体的主体部分</li>
-<li><code>206 Partial Content</code>：表示部分内容请求成功。使用场景为HTTP分快下载和断点续传，当然也会带上相应的响应头字段<code>Content-Range</code></li>
-</ul>
-<h3 id="3XX"><a href="#3XX" class="headerlink" title="3XX"></a>3XX</h3><ul>
-<li><code>301 Move Permanently</code>：永久重定向。HTTP升级HTTPS之后，之前站点再也不用，那就是301</li>
-<li><code>302 Found</code>：临时重定向。当前站点暂时不可用，那就是302，后续可能换回来</li>
-<li><code>304 Not Modified</code>：当命中协商缓存时会返回这个状态码</li>
-</ul>
-<h3 id="4XX"><a href="#4XX" class="headerlink" title="4XX"></a>4XX</h3><ul>
-<li><code>400 Bad Request</code>：请求无效。通常为前后端数据格式不一致或者其他原因</li>
-<li><code>403 Forbidden</code>：服务器已经得到请求，但是拒绝执行，比如没权限、法律禁止等等</li>
-<li><code>404 Not Found</code>：资源未找到，服务器不存在对应的资源</li>
-</ul>
-<h3 id="5XX"><a href="#5XX" class="headerlink" title="5XX"></a>5XX</h3><ul>
-<li><code>500 Internal Server Error</code>：服务器报错，有些时候可以在Response看到后端的报错信息等</li>
-<li><code>502 Bad Gateway</code>：服务器正常，但是访问出错</li>
-<li><code>503 Service Unavailable</code>：服务器繁忙或者停机维护，暂时无法处理请求</li>
-</ul>
-<h2 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h2><p><code>HTTP</code>的特性是明文传输，因此在传输的每一个环节，数据都有可能被第三方窃取或者篡改。</p>
-<p>具体来说，<code>HTTP</code>数据经过<code>TCP</code>层，然后经过<code>WIFI</code>路由器、运营商和目标服务器，这些环节中都有可能被中间人拿到数据并进行篡改，也就是我们常说的中间人攻击</p>
-<p>为了防范这样一类攻击，我们不得已引入新的加密方案，即<code>HTTPS</code></p>
-<p>简单来说HTTPS协议是有<code>HTTP协议</code>和<code>SSL协议</code>构建的可进行加密传输和身份认证的网络协议，比HTTP协议的安全性更高</p>
-<p>最后一个字母<code>S</code>指的是<code>SSL/TLS</code>协议，它位于HTTP协议与<code>TCP/IP</code>协议中间</p>
-<h3 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h3><ol>
-<li>浏览器请求URL，找到服务器，向服务器发送请求。服务器将自己的证书（包含服务器公钥）、对称加密算法种类以及其他相关信息返回给浏览器</li>
-<li>浏览器检查CA证书是否可依赖，确认证书的有效性</li>
-<li>如果不，给服务器发送警告，询问是否可以继续使用</li>
-<li>如果是，浏览器使用公钥加密一个随机对称密钥，包含加密的URL一起发送给服务器</li>
-<li>服务器用自己的私钥解密浏览器发送的钥匙，然后用这把对称加密的钥匙给浏览器请求的URL链接解密</li>
-<li>服务器用浏览器发送的对称钥匙给请求的网页加密，浏览器使用相同的钥匙就可以解密网页<br><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/46248cd079374dda975e04c934c2d60a~tplv-k3u1fbpfcp-watermark.image"></li>
-</ol>
-<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
-<li>使用<code>HTTPS</code>协议可认证用户和服务器，确保数据发送到正确的客户机和服务器</li>
-<li><code>HTTPS</code>协议是由<code>SSL + HTTP</code>协议构建的可进行加密传输、身份认证的网络协议，要比HTTP协议安全，可防止数据在传输过程中不被窃取、改变，保证了数据的完整性</li>
-<li><code>HTTPS</code>是现行架构下最安全的解决方案，虽然不是最安全，但它大幅增加了中间人攻击的成本</li>
-<li>谷歌增在2014年8月份调整搜索引擎算法，并称”比起同等<code>HTTP</code>网站，采用<code>HTTPS</code>加密的网站在搜索结果中的排名将会更高”</li>
-</ul>
-<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ul>
-<li><code>HTTPS</code>握手阶段比较费时，会使页面加载时间延长<code>50%</code>，增加<code>10%～20%</code>的耗电</li>
-<li><code>HTTPS</code>缓存不如<code>HTTP</code>高效，会增加数据开销</li>
-<li><code>SSL</code>证书也需要钱，功能越强大的证书费用越高</li>
-<li><code>SSL</code>证书需要绑定<code>IP</code>，不能在同一个<code>IP</code>上绑定多个域名，<code>IPV4</code>资源支持不了这种消耗</li>
-</ul>
-<h2 id="HTTP和HTTPS对比"><a href="#HTTP和HTTPS对比" class="headerlink" title="HTTP和HTTPS对比"></a>HTTP和HTTPS对比</h2><ul>
-<li><strong>概念对比</strong>：HTTP是超文本传输协议，信息是明文传输，HTTPS则是具有安全性的SSL加密传输协议</li>
-<li>费用对比。HTTPS协议需要CA证书，费用比较高</li>
-<li>连接方式和端口。使用不同的连接方式，端口也各有不同，一般而言，HTTP协议的端口为80，HTTPS的端口是443</li>
-<li>安全性对比。HTTP的连接很简单，是无状态的；HTTPS协议是由SSL + HTTP协议构建的可进行加密传输、身份认证的网络协议，比HTTP协议安全</li>
-</ul>
-<p><a href="https://zhuanlan.zhihu.com/p/43789231">彻底搞懂HTTPS的加密机制</a></p>
-<p><a href="https://juejin.cn/post/6844903592965439501">面试带你飞：这是一份全面的 计算机网络基础 总结攻略</a></p>
-<p><a href="https://juejin.cn/post/6844903608421449742">看图学HTTPS</a></p>
-<p><a href="https://zhuanlan.zhihu.com/p/96494976">你知道，HTTPS用的是对称加密还是非对称加密？</a></p>
-<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status">HTTP 响应代码</a></p>
-]]></content>
-      <tags>
-        <tag>frontend</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JS-this</title>
-    <url>/2021/03/06/JS-this/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
-<p><code>this</code>永远指向最后调用它的那个对象</p>
-</blockquote>
-<p>牢记：<br>    - 普通函数中<code>this</code>的指向，是<strong>this执行时</strong>的上下文<br>    - 箭头函数中<code>this</code>的指向，是<strong>this定义时</strong>的上下文</p>
-<p><code>作用域链</code>和<code>this</code>是两套不同的系统，它们之间基本没有太多的联系</p>
-<p>this是和执行上下文绑定的，也就是说每个执行上下文都有一个this</p>
-<p>执行上下文分为三种<br>    - 全局执行上下文<br>    - 函数执行上下文<br>    - <code>eval</code>执行上下文</p>
-<blockquote>
-<p>这里是浏览器中的this，和Node中的this是不一样的 </p>
-</blockquote>
-<h2 id="React中this指向"><a href="#React中this指向" class="headerlink" title="React中this指向"></a>React中this指向</h2><h3 id="提前bind绑定this"><a href="#提前bind绑定this" class="headerlink" title="提前bind绑定this"></a>提前bind绑定this</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="title">constructor</span> (<span class="params">props</span>) &#123;</span><br><span class="line">  <span class="built_in">this</span>.handleClick = <span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>);</span><br><span class="line">&#125;</span><br><span class="line">&lt;button onClick=&#123;<span class="built_in">this</span>.handleClick&#125;&gt;btn <span class="number">1</span>&lt;/button&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="调用时bind绑定this"><a href="#调用时bind绑定this" class="headerlink" title="调用时bind绑定this"></a>调用时bind绑定this</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;button onClick=&#123;<span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>)&#125;&gt;btn <span class="number">2</span>&lt;/button&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="返回一个箭头函数"><a href="#返回一个箭头函数" class="headerlink" title="返回一个箭头函数"></a>返回一个箭头函数</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;button onClick=&#123;<span class="function">() =&gt;</span> <span class="built_in">this</span>.handleClick()&#125;&gt;btn <span class="number">3</span>&lt;/button&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="React的this指向解决方案"><a href="#React的this指向解决方案" class="headerlink" title="React的this指向解决方案"></a>React的this指向解决方案</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123; Component &#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">App</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="title">constructor</span> (<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="built_in">super</span>(props);</span><br><span class="line">    <span class="built_in">this</span>.handleClick = <span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  handleClick () &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;2020&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  handleClick2 = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;2021&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  render () &#123;</span><br><span class="line">    <span class="comment">// 四种绑定方法</span></span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;div className=<span class="string">&#x27;App&#x27;</span>&gt;</span><br><span class="line">        &#123;<span class="comment">/* 方法一：通过 constructor 中进行 bind 绑定 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick&#125;&gt;btn <span class="number">1</span>&lt;/button&gt;</span><br><span class="line"></span><br><span class="line">        &#123;<span class="comment">/* 方法二：在里边绑定 this */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>)&#125;&gt;btn <span class="number">2</span>&lt;/button&gt;</span><br><span class="line"></span><br><span class="line">        &#123;<span class="comment">/* 方法三：通过箭头函数返回事件 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="function">() =&gt;</span> <span class="built_in">this</span>.handleClick()&#125;&gt;btn <span class="number">3</span>&lt;/button&gt;</span><br><span class="line">        </span><br><span class="line">        &#123;<span class="comment">/* 方法四：让方法变成箭头函数 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick2&#125;&gt;btn <span class="number">4</span>&lt;/button&gt;</span><br><span class="line">        </span><br><span class="line">        &#123;<span class="comment">/* 额外：直接调用不需要绑定 this */</span>&#125;</span><br><span class="line">        &#123;<span class="built_in">this</span>.handleClick()&#125;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> App;</span><br></pre></td></tr></table></figure>
-
-
-]]></content>
-      <tags>
-        <tag>JavaScript</tag>
-        <tag>React</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>JS-Event Loop</title>
     <url>/2021/03/06/JS-Event-Loop/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>Event Loop</code>即时间循环，是指浏览器或<code>Node</code>的一种解决<code>JavaScript</code>单线程运行时不会阻塞的一种机制，也就是我们经常使用的异步的原理</p>
@@ -348,6 +174,255 @@
 ]]></content>
       <tags>
         <tag>JavaScript</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>react question</title>
+    <url>/2021/03/05/react%E9%9D%A2%E8%AF%95%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="生命周期中的哪一步应该发起AJAX请求"><a href="#生命周期中的哪一步应该发起AJAX请求" class="headerlink" title="生命周期中的哪一步应该发起AJAX请求"></a>生命周期中的哪一步应该发起AJAX请求</h2><ul>
+<li>应该在componentDidMount函数中执行<ol>
+<li>React下一代调和算法Fiber会通过开始或停止渲染的方式优化应用性能，其会影响到componentDidWillMount的触发次数。对于componentDidWillMount这个生命周期函数的调用次数会变得不确定，React可能会多次频繁调用componentDidWillMount。如果我们将AJAX请求放到componentDidWillMount函数中，那么显而易见其会被触发多次，自然也就不是一个好的选择</li>
+<li>如果我们将AJAX请求放置在别的函数中，我们并不能保证请求仅在组件挂载完毕之后才会要求相应。如果我们的数据请求在组件挂载之前就完成，并且调用了setState函数将数据添加到组件状态中，对于未挂载的组件则会报错。而在componentDidMount函数中进行AJAX请求就能有效避免这个问题</li>
+</ol>
+</li>
+</ul>
+<h2 id="shouldComponentUpdate的作用是啥以及为什么这么重要"><a href="#shouldComponentUpdate的作用是啥以及为什么这么重要" class="headerlink" title="shouldComponentUpdate的作用是啥以及为什么这么重要"></a>shouldComponentUpdate的作用是啥以及为什么这么重要</h2><ul>
+<li>shouldComponentUpdate允许我们手动判断是否进行组件更新，根据组件的应用场景设置函数的合理返回值能够帮我们避免不必要的更新</li>
+</ul>
+<h2 id="如何告诉React应该编译生产环境版本"><a href="#如何告诉React应该编译生产环境版本" class="headerlink" title="如何告诉React应该编译生产环境版本"></a>如何告诉React应该编译生产环境版本</h2><ul>
+<li>通常情况下会使用webpack的DefinePlugin方法来将NODE_ENV变量值设置为production。编译版本中React会忽略propType验证以及其他的告警信息，同时还会降低代码库的大小，React使用了Uglify插件来移除生产环境下不必要的注释等信息。</li>
+</ul>
+<h2 id="React中keys的作用是什么？"><a href="#React中keys的作用是什么？" class="headerlink" title="React中keys的作用是什么？"></a>React中keys的作用是什么？</h2><ul>
+<li>Keys是React用于追踪哪些列表中元素被修改、被添加或者被移除的辅助标识。<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">render () &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ul&gt;</span><br><span class="line">      &#123;<span class="built_in">this</span>.state.todoItems.map(<span class="function">(<span class="params">&#123;item, key&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">&#123;key&#125;</span>&gt;</span>&#123;item&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">      &#125;)&#125;</span><br><span class="line">    &lt;/ul&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>react利用key来识别组件，它是一种身份标识，相同的key React认为是同一组件，这样后续相同的key对应组件都不会被创建</li>
+<li>有了key属性之后，就可以与组件建立了一种对应关系，react根据key来决定是销毁重新创建组件还是更新组建</li>
+<li>key相同，若组件属性有所变化，则React只更新组件对应的属性；没有变化则不更新</li>
+<li>key值不同，则React先销毁该组件（有状态组件的componentWillUnmount会执行），然后重新创建该组件（有状态组件的constructor和componentWillUnmount都会执行）</li>
+</ul>
+<h2 id="触发多次setState，那么render会执行几次？"><a href="#触发多次setState，那么render会执行几次？" class="headerlink" title="触发多次setState，那么render会执行几次？"></a>触发多次setState，那么render会执行几次？</h2><ul>
+<li>多次执行setState会合并为一次render，因为setState并不会立即改变state的值，而是将其放到任务队列中，最终将多个setState合并，一次性更新页面。</li>
+</ul>
+<p><strong>所以</strong> 我们可以在代码里多次调用setState，每次只需要关注当前修改的字段就可以了</p>
+<h3 id="为什么建议传递给setState的参数是一个callback而不是一个对象？"><a href="#为什么建议传递给setState的参数是一个callback而不是一个对象？" class="headerlink" title="为什么建议传递给setState的参数是一个callback而不是一个对象？"></a>为什么建议传递给setState的参数是一个callback而不是一个对象？</h3><ul>
+<li>因为this.props和this.state的更新可能是异步的，不能依赖它们去计算下一个state</li>
+</ul>
+<h3 id="为什么setState是一个异步的？"><a href="#为什么setState是一个异步的？" class="headerlink" title="为什么setState是一个异步的？"></a>为什么setState是一个异步的？</h3><ul>
+<li>当批量操作state的时候可以让DOM渲染的更快，也就是说多个setState在执行的过程中还需要被合并</li>
+</ul>
+<h2 id="this-setState之后React做了哪些操作"><a href="#this-setState之后React做了哪些操作" class="headerlink" title="this.setState之后React做了哪些操作?"></a>this.setState之后React做了哪些操作?</h2><ul>
+<li>shouldComponentUpdate</li>
+<li>componentWillUpdate</li>
+<li>render</li>
+<li>componentDidUpdate</li>
+</ul>
+<h2 id="为什么虚拟dom会提高性能"><a href="#为什么虚拟dom会提高性能" class="headerlink" title="为什么虚拟dom会提高性能"></a>为什么虚拟dom会提高性能</h2><ul>
+<li>虚拟DOM相当于在JS和真实DOM中间加了一个缓存，利用DOM Diff避免了没有必要的dom操作，从而提高性能</li>
+<li>用JavaScript对象结构表示DOM树的结构</li>
+<li>然后用这个树构建一个真正的DOM树，插到文档当中当状态变更的时候，重新构造一棵树的对象树</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>frontend</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JS-this</title>
+    <url>/2021/03/06/JS-this/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
+<p><code>this</code>永远指向最后调用它的那个对象</p>
+</blockquote>
+<p>牢记：<br>    - 普通函数中<code>this</code>的指向，是<strong>this执行时</strong>的上下文<br>    - 箭头函数中<code>this</code>的指向，是<strong>this定义时</strong>的上下文</p>
+<p><code>作用域链</code>和<code>this</code>是两套不同的系统，它们之间基本没有太多的联系</p>
+<p>this是和执行上下文绑定的，也就是说每个执行上下文都有一个this</p>
+<p>执行上下文分为三种<br>    - 全局执行上下文<br>    - 函数执行上下文<br>    - <code>eval</code>执行上下文</p>
+<blockquote>
+<p>这里是浏览器中的this，和Node中的this是不一样的 </p>
+</blockquote>
+<h2 id="React中this指向"><a href="#React中this指向" class="headerlink" title="React中this指向"></a>React中this指向</h2><h3 id="提前bind绑定this"><a href="#提前bind绑定this" class="headerlink" title="提前bind绑定this"></a>提前bind绑定this</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="title">constructor</span> (<span class="params">props</span>) &#123;</span><br><span class="line">  <span class="built_in">this</span>.handleClick = <span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>);</span><br><span class="line">&#125;</span><br><span class="line">&lt;button onClick=&#123;<span class="built_in">this</span>.handleClick&#125;&gt;btn <span class="number">1</span>&lt;/button&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="调用时bind绑定this"><a href="#调用时bind绑定this" class="headerlink" title="调用时bind绑定this"></a>调用时bind绑定this</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;button onClick=&#123;<span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>)&#125;&gt;btn <span class="number">2</span>&lt;/button&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="返回一个箭头函数"><a href="#返回一个箭头函数" class="headerlink" title="返回一个箭头函数"></a>返回一个箭头函数</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;button onClick=&#123;<span class="function">() =&gt;</span> <span class="built_in">this</span>.handleClick()&#125;&gt;btn <span class="number">3</span>&lt;/button&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="React的this指向解决方案"><a href="#React的this指向解决方案" class="headerlink" title="React的this指向解决方案"></a>React的this指向解决方案</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123; Component &#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">App</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="title">constructor</span> (<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="built_in">super</span>(props);</span><br><span class="line">    <span class="built_in">this</span>.handleClick = <span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  handleClick () &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;2020&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  handleClick2 = <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;2021&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  render () &#123;</span><br><span class="line">    <span class="comment">// 四种绑定方法</span></span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;div className=<span class="string">&#x27;App&#x27;</span>&gt;</span><br><span class="line">        &#123;<span class="comment">/* 方法一：通过 constructor 中进行 bind 绑定 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick&#125;&gt;btn <span class="number">1</span>&lt;/button&gt;</span><br><span class="line"></span><br><span class="line">        &#123;<span class="comment">/* 方法二：在里边绑定 this */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick.bind(<span class="built_in">this</span>)&#125;&gt;btn <span class="number">2</span>&lt;/button&gt;</span><br><span class="line"></span><br><span class="line">        &#123;<span class="comment">/* 方法三：通过箭头函数返回事件 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="function">() =&gt;</span> <span class="built_in">this</span>.handleClick()&#125;&gt;btn <span class="number">3</span>&lt;/button&gt;</span><br><span class="line">        </span><br><span class="line">        &#123;<span class="comment">/* 方法四：让方法变成箭头函数 */</span>&#125;</span><br><span class="line">        &lt;button onClick=&#123;<span class="built_in">this</span>.handleClick2&#125;&gt;btn <span class="number">4</span>&lt;/button&gt;</span><br><span class="line">        </span><br><span class="line">        &#123;<span class="comment">/* 额外：直接调用不需要绑定 this */</span>&#125;</span><br><span class="line">        &#123;<span class="built_in">this</span>.handleClick()&#125;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> App;</span><br></pre></td></tr></table></figure>
+
+
+]]></content>
+      <tags>
+        <tag>JavaScript</tag>
+        <tag>React</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HTTP/HTTPS</title>
+    <url>/2021/03/05/HTTP-HTTPS/</url>
+    <content><![CDATA[<h2 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h2><p>Web使用一种名为<code>HTTP</code>(HyperText Transfer Protocol, 超文本传输协议)的协议作为规范，完成从客户端到服务器的一系列运作流程。而协议是指规则的约定。可以说，Web是建立在HTTP协议上通信的。</p>
+<p><code>HTTP</code>最初的目的就是为了让研究者共享知识信息，所以它的主要作用就是文档传输，它是一种用于传输文档的协议</p>
+<h3 id="请求方法"><a href="#请求方法" class="headerlink" title="请求方法"></a>请求方法</h3><ul>
+<li><code>GET</code>: 获取资源</li>
+<li><code>HEAD</code>: 获取资源的元信息</li>
+<li><code>POST</code>: 提交/上传 数据</li>
+<li><code>PUT</code>: 修改数据</li>
+<li><code>DELETE</code>: 删除资源（几乎用不到）</li>
+<li><code>CONNECT</code>: 建立连接渠道，用于代理服务器</li>
+<li><code>OPTIONS</code>: 列出可对资源实施请求的方法，用来跨域请求</li>
+<li><code>TRACE</code>: 追踪请求-响应的传输路径</li>
+</ul>
+<h3 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h3><ul>
+<li>优点<ul>
+<li><code>灵活可扩展</code>：主要体现在两个方面。一个是语义上的自由，只规定了基本格式，比如空格分隔单词，换行分割字段，其他的各个部分都还没有严格的语法限制。另一个就是传输形式的多样性，不仅仅是可以传输文本，还可以传输图片、视频等任意数据，非常方便</li>
+<li><code>可靠传输</code>：HTTP基于TCP/IP，因此把这一特性继承了下来。这属于TCP的特性</li>
+<li><code>请求-应答</code>：也就是一发一收、有来有回，当然这个请求方和应答方不单单指客户端和服务器之间，如果某台服务器作为代理来连接后端的服务器，那么这台服务器也会扮演请求方的角色</li>
+<li><code>无状态</code>：这里的状态指的是通信过程中上下文信息，而每次HTTP请求都是独立、无关的，默认不需要保留状态信息</li>
+</ul>
+</li>
+<li>缺点<ul>
+<li><code>无状态</code>： 在需要长连接的场景中，需要保存大量的上下文信息，以免传输大量重复的信息，那么这个时候无状态就成了HTTP的缺点了</li>
+<li><code>明文传输</code>： 协议里的报文（主要指的是头部）不使用二进制数据，而是文本形式</li>
+<li><code>队头阻塞问题</code>： 当HTTP开始长连接的时候，共用一个TCP连接，同一时刻只能处理一个请求，那么当前请求耗时过长的情况下，其它的请求只能处于阻塞状态</li>
+</ul>
+</li>
+</ul>
+<h3 id="GET和POST的区别"><a href="#GET和POST的区别" class="headerlink" title="GET和POST的区别"></a>GET和POST的区别</h3><p><code>GET</code>和<code>POST</code>方法没有实质区别，只是报文格式不同<br><code>GET</code>和<code>POST</code>只是<code>HTTP</code>协议中两种请求方式，而<code>HTTP</code>协议是基于<code>TCP/IP</code>的应用层协议<br>无论是<code>GET</code>还是<code>POST</code>，用的都是同一个传输层协议，所以在传输上是没有区别的</p>
+<ul>
+<li><code>GET</code>获取资源；<code>POST</code>提交/上传 数据</li>
+<li><code>GET</code>请求长度在浏览器中有显示，而<code>POST</code>并没有</li>
+<li><code>GET</code>请求会被浏览器主动保留下来（历史记录）, 而<code>POST</code>默认不会</li>
+</ul>
+<blockquote>
+<p>【误区】GET请求传参长度有限制</p>
+</blockquote>
+<ul>
+<li><p>我们经常说GET请求参数的大小存在限制，而POST请求的参数大小是无限制的。其实这是有问题的。</p>
+</li>
+<li><p>实际上<code>HTTP</code>协议从来没规定<code>GET/POST</code>的请求长度限制是多少</p>
+</li>
+<li><p>对<code>GET</code>请求参数的限制来源于浏览器或者<code>Web</code>服务器，是它们限制了这个长度</p>
+</li>
+<li><p>不同的浏览器和<code>Web</code>服务器，限制的最大长度不一样</p>
+</li>
+</ul>
+<blockquote>
+<p>【误区】POST方法比GET方法安全</p>
+</blockquote>
+<ul>
+<li><p><code>POST</code>比<code>GET</code>安全，是因为数据在地址栏URL看不见</p>
+</li>
+<li><p>从传输的角度来说<code>HTTP</code>在网络上的明文传输，可以通过抓包工具完整获取的</p>
+</li>
+<li><p>如果想要安全，可以使用<code>HTTPS</code></p>
+</li>
+</ul>
+<h3 id="keep-alive"><a href="#keep-alive" class="headerlink" title="keep-alive"></a>keep-alive</h3><p><code>HTTP</code>的<code>keep-alive</code>也称为<code>HTTP</code>的长连接<br>它通过重用一个<code>TCP</code>连接来发送/接收多个<code>HTTP</code>请求，来减少创建/关闭多个TCP连接的开销</p>
+<p>在<code>HTTP/1.0</code>协议中，如果请求头中包含</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Connection: keep-alive</span><br></pre></td></tr></table></figure>
+<p>则代表开启了<code>keep-alive</code>，而服务端的返回保文头中，也会包含相同的内容</p>
+<p>在<code>HTTP/1.1</code>协议中，默认开启<code>keep-alive</code>，除非显式地关闭它：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Connection: close</span><br></pre></td></tr></table></figure>
+
+<p>除此之外还可以设置断开的时间</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Keep-Alive: timeout&#x3D;5, max&#x3D;100</span><br></pre></td></tr></table></figure>
+<p>这个就表示<code>TCP</code>通道可以保持<code>5s</code>，<code>max=100</code>表示这个长连接最多接收<code>100</code>次请求就断开</p>
+<h3 id="HTTP和TCP的区别"><a href="#HTTP和TCP的区别" class="headerlink" title="HTTP和TCP的区别"></a>HTTP和TCP的区别</h3><p>HTTP是应用层协议，定义的是传输数据内容的规范；而TCP是底层通讯协议，定义的是数据传输和连接方式的规范。</p>
+<p>HTTP协议中的数据是利用TCP协议传输的，所以支持HTTP的也一定支持TCP</p>
+<h2 id="HTTP状态码"><a href="#HTTP状态码" class="headerlink" title="HTTP状态码"></a>HTTP状态码</h2><ul>
+<li>HTTP状态码位三位数，被归为五类<ul>
+<li><code>1XX</code>：表示目前是协议处理的中间状态，还需要后续操作</li>
+<li><code>2XX</code>：表示成功状态</li>
+<li><code>3XX</code>：重定向状态，资源位置发生变动，需要重新请求</li>
+<li><code>4XX</code>：请求报文有误</li>
+<li><code>5XX</code>：服务端发生错误</li>
+</ul>
+</li>
+</ul>
+<h3 id="1XX"><a href="#1XX" class="headerlink" title="1XX"></a>1XX</h3><ul>
+<li><code>101 Switching Protocols</code>：在HTTP升级为<code>WebSocket</code>的时候，如果服务器同意变更，就会发送状态码101</li>
+</ul>
+<h3 id="2XX"><a href="#2XX" class="headerlink" title="2XX"></a>2XX</h3><ul>
+<li><code>200 OK</code>：请求成功状态码，响应体中含有数据</li>
+<li><code>204 No Content</code>：含义同200，但是响应报文不含实体的主体部分</li>
+<li><code>206 Partial Content</code>：表示部分内容请求成功。使用场景为HTTP分快下载和断点续传，当然也会带上相应的响应头字段<code>Content-Range</code></li>
+</ul>
+<h3 id="3XX"><a href="#3XX" class="headerlink" title="3XX"></a>3XX</h3><ul>
+<li><code>301 Move Permanently</code>：永久重定向。HTTP升级HTTPS之后，之前站点再也不用，那就是301</li>
+<li><code>302 Found</code>：临时重定向。当前站点暂时不可用，那就是302，后续可能换回来</li>
+<li><code>304 Not Modified</code>：当命中协商缓存时会返回这个状态码</li>
+</ul>
+<h3 id="4XX"><a href="#4XX" class="headerlink" title="4XX"></a>4XX</h3><ul>
+<li><code>400 Bad Request</code>：请求无效。通常为前后端数据格式不一致或者其他原因</li>
+<li><code>403 Forbidden</code>：服务器已经得到请求，但是拒绝执行，比如没权限、法律禁止等等</li>
+<li><code>404 Not Found</code>：资源未找到，服务器不存在对应的资源</li>
+</ul>
+<h3 id="5XX"><a href="#5XX" class="headerlink" title="5XX"></a>5XX</h3><ul>
+<li><code>500 Internal Server Error</code>：服务器报错，有些时候可以在Response看到后端的报错信息等</li>
+<li><code>502 Bad Gateway</code>：服务器正常，但是访问出错</li>
+<li><code>503 Service Unavailable</code>：服务器繁忙或者停机维护，暂时无法处理请求</li>
+</ul>
+<h2 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h2><p><code>HTTP</code>的特性是明文传输，因此在传输的每一个环节，数据都有可能被第三方窃取或者篡改。</p>
+<p>具体来说，<code>HTTP</code>数据经过<code>TCP</code>层，然后经过<code>WIFI</code>路由器、运营商和目标服务器，这些环节中都有可能被中间人拿到数据并进行篡改，也就是我们常说的中间人攻击</p>
+<p>为了防范这样一类攻击，我们不得已引入新的加密方案，即<code>HTTPS</code></p>
+<p>简单来说HTTPS协议是有<code>HTTP协议</code>和<code>SSL协议</code>构建的可进行加密传输和身份认证的网络协议，比HTTP协议的安全性更高</p>
+<p>最后一个字母<code>S</code>指的是<code>SSL/TLS</code>协议，它位于HTTP协议与<code>TCP/IP</code>协议中间</p>
+<h3 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h3><ol>
+<li>浏览器请求URL，找到服务器，向服务器发送请求。服务器将自己的证书（包含服务器公钥）、对称加密算法种类以及其他相关信息返回给浏览器</li>
+<li>浏览器检查CA证书是否可依赖，确认证书的有效性</li>
+<li>如果不，给服务器发送警告，询问是否可以继续使用</li>
+<li>如果是，浏览器使用公钥加密一个随机对称密钥，包含加密的URL一起发送给服务器</li>
+<li>服务器用自己的私钥解密浏览器发送的钥匙，然后用这把对称加密的钥匙给浏览器请求的URL链接解密</li>
+<li>服务器用浏览器发送的对称钥匙给请求的网页加密，浏览器使用相同的钥匙就可以解密网页<br><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/46248cd079374dda975e04c934c2d60a~tplv-k3u1fbpfcp-watermark.image"></li>
+</ol>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>使用<code>HTTPS</code>协议可认证用户和服务器，确保数据发送到正确的客户机和服务器</li>
+<li><code>HTTPS</code>协议是由<code>SSL + HTTP</code>协议构建的可进行加密传输、身份认证的网络协议，要比HTTP协议安全，可防止数据在传输过程中不被窃取、改变，保证了数据的完整性</li>
+<li><code>HTTPS</code>是现行架构下最安全的解决方案，虽然不是最安全，但它大幅增加了中间人攻击的成本</li>
+<li>谷歌增在2014年8月份调整搜索引擎算法，并称”比起同等<code>HTTP</code>网站，采用<code>HTTPS</code>加密的网站在搜索结果中的排名将会更高”</li>
+</ul>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li><code>HTTPS</code>握手阶段比较费时，会使页面加载时间延长<code>50%</code>，增加<code>10%～20%</code>的耗电</li>
+<li><code>HTTPS</code>缓存不如<code>HTTP</code>高效，会增加数据开销</li>
+<li><code>SSL</code>证书也需要钱，功能越强大的证书费用越高</li>
+<li><code>SSL</code>证书需要绑定<code>IP</code>，不能在同一个<code>IP</code>上绑定多个域名，<code>IPV4</code>资源支持不了这种消耗</li>
+</ul>
+<h2 id="HTTP和HTTPS对比"><a href="#HTTP和HTTPS对比" class="headerlink" title="HTTP和HTTPS对比"></a>HTTP和HTTPS对比</h2><ul>
+<li><strong>概念对比</strong>：HTTP是超文本传输协议，信息是明文传输，HTTPS则是具有安全性的SSL加密传输协议</li>
+<li>费用对比。HTTPS协议需要CA证书，费用比较高</li>
+<li>连接方式和端口。使用不同的连接方式，端口也各有不同，一般而言，HTTP协议的端口为80，HTTPS的端口是443</li>
+<li>安全性对比。HTTP的连接很简单，是无状态的；HTTPS协议是由SSL + HTTP协议构建的可进行加密传输、身份认证的网络协议，比HTTP协议安全</li>
+</ul>
+<p><a href="https://zhuanlan.zhihu.com/p/43789231">彻底搞懂HTTPS的加密机制</a></p>
+<p><a href="https://juejin.cn/post/6844903592965439501">面试带你飞：这是一份全面的 计算机网络基础 总结攻略</a></p>
+<p><a href="https://juejin.cn/post/6844903608421449742">看图学HTTPS</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/96494976">你知道，HTTPS用的是对称加密还是非对称加密？</a></p>
+<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status">HTTP 响应代码</a></p>
+]]></content>
+      <tags>
+        <tag>frontend</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>微信小程序注意点</title>
+    <url>/2021/03/08/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E6%B3%A8%E6%84%8F%E7%82%B9/</url>
+    <content><![CDATA[<h2 id="subPackages分包加载"><a href="#subPackages分包加载" class="headerlink" title="subPackages分包加载"></a>subPackages分包加载</h2><p>因为小程序主包大小不超过2048kb限制，所以使用分包是个不错的选择，总分包大小不超过8Mb，可以添加多个分包，分包加载可以优化小程序首次启动的下载时间，当进入分包页再进行下载，这种按需加载可以把某些数据量大的抽离出来进行分包</p>
+<h2 id="rpx单位"><a href="#rpx单位" class="headerlink" title="rpx单位"></a>rpx单位</h2><p>在做移动端适配的时候最常用的就是使用rem或vw作为单位来进行适配，所以微信小程序提供了rpx单位来进行适配</p>
+<h2 id="授权弹窗"><a href="#授权弹窗" class="headerlink" title="授权弹窗"></a>授权弹窗</h2><p>wx.getUserInfo接口调整，以前可以直接主动调用显示授权弹窗，现在需要使用button按钮点击去引导用户授权</p>
+<h2 id="原生组件z-index"><a href="#原生组件z-index" class="headerlink" title="原生组件z-index"></a>原生组件z-index</h2><p>原生组件的层级是最高的，所以页面中的其它组件无论设置z-index为多少，都无法盖在原生组件上，可以通过cover-view来解决，但某些特定环境如swiper或弹窗中需要显示/隐藏原生组件，需要配合hidden来使用</p>
+<h2 id="伪元素"><a href="#伪元素" class="headerlink" title="伪元素"></a>伪元素</h2><p>小程序的伪元素属性无法在微信开发者工具CSS属性中看到，所以对于某些组件样式无法覆盖时（button的边框或某些线条设置），是因为通过伪元素::after设置的，所以必须使用伪元素来覆盖</p>
+<h2 id="页面栈"><a href="#页面栈" class="headerlink" title="页面栈"></a>页面栈</h2><p>一个页面只能打开5个页面栈，当已经打开了 5个页面之后（现在的限制是10层），后续可能会不能正常打开新页面的情况。wx.navigateTo跳转会保留当前页，wx.redirectTo则不会，所以要避免多层级的交互方式来合理使用跳转方式</p>
+<h2 id="组件化"><a href="#组件化" class="headerlink" title="组件化"></a>组件化</h2><p>template模块与component组件，是小程序中组件化的方式</p>
+<ul>
+<li>区别<ul>
+<li>template模块主要是展示，方法在template的页面中定义</li>
+<li>component组件拥有自己的js文件，整个component组件类似一个page页面</li>
+</ul>
+</li>
+</ul>
+<p>如果只是展示用，建议使用template，组件中涉及比较多的逻辑，建议使用component</p>
+<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><ol>
+<li>开发者工具source断点、console.log打印数据和AppData查看数据</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>微信小程序</tag>
       </tags>
   </entry>
   <entry>
@@ -603,81 +678,6 @@
 ]]></content>
       <tags>
         <tag>frontend</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>react question</title>
-    <url>/2021/03/05/react%E9%9D%A2%E8%AF%95%E9%A2%98/</url>
-    <content><![CDATA[<h2 id="生命周期中的哪一步应该发起AJAX请求"><a href="#生命周期中的哪一步应该发起AJAX请求" class="headerlink" title="生命周期中的哪一步应该发起AJAX请求"></a>生命周期中的哪一步应该发起AJAX请求</h2><ul>
-<li>应该在componentDidMount函数中执行<ol>
-<li>React下一代调和算法Fiber会通过开始或停止渲染的方式优化应用性能，其会影响到componentDidWillMount的触发次数。对于componentDidWillMount这个生命周期函数的调用次数会变得不确定，React可能会多次频繁调用componentDidWillMount。如果我们将AJAX请求放到componentDidWillMount函数中，那么显而易见其会被触发多次，自然也就不是一个好的选择</li>
-<li>如果我们将AJAX请求放置在别的函数中，我们并不能保证请求仅在组件挂载完毕之后才会要求相应。如果我们的数据请求在组件挂载之前就完成，并且调用了setState函数将数据添加到组件状态中，对于未挂载的组件则会报错。而在componentDidMount函数中进行AJAX请求就能有效避免这个问题</li>
-</ol>
-</li>
-</ul>
-<h2 id="shouldComponentUpdate的作用是啥以及为什么这么重要"><a href="#shouldComponentUpdate的作用是啥以及为什么这么重要" class="headerlink" title="shouldComponentUpdate的作用是啥以及为什么这么重要"></a>shouldComponentUpdate的作用是啥以及为什么这么重要</h2><ul>
-<li>shouldComponentUpdate允许我们手动判断是否进行组件更新，根据组件的应用场景设置函数的合理返回值能够帮我们避免不必要的更新</li>
-</ul>
-<h2 id="如何告诉React应该编译生产环境版本"><a href="#如何告诉React应该编译生产环境版本" class="headerlink" title="如何告诉React应该编译生产环境版本"></a>如何告诉React应该编译生产环境版本</h2><ul>
-<li>通常情况下会使用webpack的DefinePlugin方法来将NODE_ENV变量值设置为production。编译版本中React会忽略propType验证以及其他的告警信息，同时还会降低代码库的大小，React使用了Uglify插件来移除生产环境下不必要的注释等信息。</li>
-</ul>
-<h2 id="React中keys的作用是什么？"><a href="#React中keys的作用是什么？" class="headerlink" title="React中keys的作用是什么？"></a>React中keys的作用是什么？</h2><ul>
-<li>Keys是React用于追踪哪些列表中元素被修改、被添加或者被移除的辅助标识。<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">render () &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ul&gt;</span><br><span class="line">      &#123;<span class="built_in">this</span>.state.todoItems.map(<span class="function">(<span class="params">&#123;item, key&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">&#123;key&#125;</span>&gt;</span>&#123;item&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">      &#125;)&#125;</span><br><span class="line">    &lt;/ul&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>react利用key来识别组件，它是一种身份标识，相同的key React认为是同一组件，这样后续相同的key对应组件都不会被创建</li>
-<li>有了key属性之后，就可以与组件建立了一种对应关系，react根据key来决定是销毁重新创建组件还是更新组建</li>
-<li>key相同，若组件属性有所变化，则React只更新组件对应的属性；没有变化则不更新</li>
-<li>key值不同，则React先销毁该组件（有状态组件的componentWillUnmount会执行），然后重新创建该组件（有状态组件的constructor和componentWillUnmount都会执行）</li>
-</ul>
-<h2 id="触发多次setState，那么render会执行几次？"><a href="#触发多次setState，那么render会执行几次？" class="headerlink" title="触发多次setState，那么render会执行几次？"></a>触发多次setState，那么render会执行几次？</h2><ul>
-<li>多次执行setState会合并为一次render，因为setState并不会立即改变state的值，而是将其放到任务队列中，最终将多个setState合并，一次性更新页面。</li>
-</ul>
-<p><strong>所以</strong> 我们可以在代码里多次调用setState，每次只需要关注当前修改的字段就可以了</p>
-<h3 id="为什么建议传递给setState的参数是一个callback而不是一个对象？"><a href="#为什么建议传递给setState的参数是一个callback而不是一个对象？" class="headerlink" title="为什么建议传递给setState的参数是一个callback而不是一个对象？"></a>为什么建议传递给setState的参数是一个callback而不是一个对象？</h3><ul>
-<li>因为this.props和this.state的更新可能是异步的，不能依赖它们去计算下一个state</li>
-</ul>
-<h3 id="为什么setState是一个异步的？"><a href="#为什么setState是一个异步的？" class="headerlink" title="为什么setState是一个异步的？"></a>为什么setState是一个异步的？</h3><ul>
-<li>当批量操作state的时候可以让DOM渲染的更快，也就是说多个setState在执行的过程中还需要被合并</li>
-</ul>
-<h2 id="this-setState之后React做了哪些操作"><a href="#this-setState之后React做了哪些操作" class="headerlink" title="this.setState之后React做了哪些操作?"></a>this.setState之后React做了哪些操作?</h2><ul>
-<li>shouldComponentUpdate</li>
-<li>componentWillUpdate</li>
-<li>render</li>
-<li>componentDidUpdate</li>
-</ul>
-<h2 id="为什么虚拟dom会提高性能"><a href="#为什么虚拟dom会提高性能" class="headerlink" title="为什么虚拟dom会提高性能"></a>为什么虚拟dom会提高性能</h2><ul>
-<li>虚拟DOM相当于在JS和真实DOM中间加了一个缓存，利用DOM Diff避免了没有必要的dom操作，从而提高性能</li>
-<li>用JavaScript对象结构表示DOM树的结构</li>
-<li>然后用这个树构建一个真正的DOM树，插到文档当中当状态变更的时候，重新构造一棵树的对象树</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>frontend</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>微信小程序注意点</title>
-    <url>/2021/03/08/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E6%B3%A8%E6%84%8F%E7%82%B9/</url>
-    <content><![CDATA[<h2 id="subPackages分包加载"><a href="#subPackages分包加载" class="headerlink" title="subPackages分包加载"></a>subPackages分包加载</h2><p>因为小程序主包大小不超过2048kb限制，所以使用分包是个不错的选择，总分包大小不超过8Mb，可以添加多个分包，分包加载可以优化小程序首次启动的下载时间，当进入分包页再进行下载，这种按需加载可以把某些数据量大的抽离出来进行分包</p>
-<h2 id="rpx单位"><a href="#rpx单位" class="headerlink" title="rpx单位"></a>rpx单位</h2><p>在做移动端适配的时候最常用的就是使用rem或vw作为单位来进行适配，所以微信小程序提供了rpx单位来进行适配</p>
-<h2 id="授权弹窗"><a href="#授权弹窗" class="headerlink" title="授权弹窗"></a>授权弹窗</h2><p>wx.getUserInfo接口调整，以前可以直接主动调用显示授权弹窗，现在需要使用button按钮点击去引导用户授权</p>
-<h2 id="原生组件z-index"><a href="#原生组件z-index" class="headerlink" title="原生组件z-index"></a>原生组件z-index</h2><p>原生组件的层级是最高的，所以页面中的其它组件无论设置z-index为多少，都无法盖在原生组件上，可以通过cover-view来解决，但某些特定环境如swiper或弹窗中需要显示/隐藏原生组件，需要配合hidden来使用</p>
-<h2 id="伪元素"><a href="#伪元素" class="headerlink" title="伪元素"></a>伪元素</h2><p>小程序的伪元素属性无法在微信开发者工具CSS属性中看到，所以对于某些组件样式无法覆盖时（button的边框或某些线条设置），是因为通过伪元素::after设置的，所以必须使用伪元素来覆盖</p>
-<h2 id="页面栈"><a href="#页面栈" class="headerlink" title="页面栈"></a>页面栈</h2><p>一个页面只能打开5个页面栈，当已经打开了 5个页面之后（现在的限制是10层），后续可能会不能正常打开新页面的情况。wx.navigateTo跳转会保留当前页，wx.redirectTo则不会，所以要避免多层级的交互方式来合理使用跳转方式</p>
-<h2 id="组件化"><a href="#组件化" class="headerlink" title="组件化"></a>组件化</h2><p>template模块与component组件，是小程序中组件化的方式</p>
-<ul>
-<li>区别<ul>
-<li>template模块主要是展示，方法在template的页面中定义</li>
-<li>component组件拥有自己的js文件，整个component组件类似一个page页面</li>
-</ul>
-</li>
-</ul>
-<p>如果只是展示用，建议使用template，组件中涉及比较多的逻辑，建议使用component</p>
-<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><ol>
-<li>开发者工具source断点、console.log打印数据和AppData查看数据</li>
-</ol>
-]]></content>
-      <tags>
-        <tag>微信小程序</tag>
       </tags>
   </entry>
 </search>
